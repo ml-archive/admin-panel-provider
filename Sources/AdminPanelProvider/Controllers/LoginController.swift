@@ -1,0 +1,14 @@
+import JWT
+import Vapor
+
+public final class LoginController {
+    public let renderer: ViewRenderer
+
+    public init(renderer: ViewRenderer) {
+        self.renderer = renderer
+    }
+
+    public func landing(req: Request) throws -> ResponseRepresentable {
+        return try renderer.make("Login/index", for: req)
+    }
+}

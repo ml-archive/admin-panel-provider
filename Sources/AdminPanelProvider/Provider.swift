@@ -19,6 +19,9 @@ public final class Provider: Vapor.Provider {
         } else if let stencil = droplet.view as? StencilRenderer {
             setupStencilRenderer(stencil)
         }
+
+        let loginCollection = LoginRoutes(renderer: droplet.view)
+        try droplet.collection(loginCollection)
     }
 
     public func beforeRun(_ droplet: Droplet) throws {}

@@ -6,7 +6,7 @@ import StencilProvider
 @testable import AdminPanelProvider
 
 class AdminPanelProviderTests: XCTestCase {
-    func testBasic() {
+    func testBasic() throws {
         XCTAssertEqual(2+2, 4)
     }
 }
