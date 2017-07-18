@@ -1,0 +1,5 @@
+#extend("Layout/base")
+
+#export("page") {
+    #import("content")
+}
