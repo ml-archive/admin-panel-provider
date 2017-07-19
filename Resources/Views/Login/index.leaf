@@ -1,9 +1,8 @@
 #extend("Layout/page")
 
 #export("content") {
-<div id="login" class="panel panel-default">
-    <div class="panel-body">
-        
+<div id="login" class="panel panel-default container-fluid acc-settings">
+    <div class="col-md-6 col-md-offset-3 panel-body">
         #if(request.storage.adminPanel.sso) {
         <a href="/admin/login/sso" id="alternative-login" class="sso">
             <span class="sr-only">Nodes SSO</span>
@@ -12,11 +11,9 @@
         
         <div class="panel-heading">
             <div class="logo">
-                #embed("Layout/Partials/Elements/logo")
             </div>
             <h3 class="panel-title margin-bottom">Login</h3>
         </div>
-        #embed("Layout/Partials/Elements/alerts")
         
         <form method="POST" action="/admin/login?next=#(next)">
             <div class="form-group action-wrapper">
@@ -28,6 +25,9 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" class="form-control" name="password" required placeholder="Insert password"/>
             </div>
+
+            #form:textgroup(fieldset.email, nil, "", "required,placeholder='Insert email'")
+            #form:textgroup(fieldset.password, nil, "", "required,placeholder='Insert password'")
 
             <div class="form-group clearfix">
                 <div class="checkbox pull-left">
