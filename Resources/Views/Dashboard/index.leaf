@@ -1,0 +1,47 @@
+#extend("Layout/page")
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    <h1>Dashboard<small> Version 2.0</small></h1>
+}
+
+#export("content") {
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            #infobox("Messages", "1,410", "aqua", "gear")
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            #infobox("Likes", "41,410", "red", "google-plus")
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            #infobox("Sales", "760", "green", "shopping-cart")
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+            #infobox("New members", "2,000", "yellow", "users")
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            #box("Departure") {
+                #form:dategroup(fieldset.dep, app.dep)
+            }
+
+            #box("Return") {
+                #form:dategroup(fieldset.ret, app.dep, "mm/dd/yy")
+            }
+
+            #box("Gimme a colour") {
+                #form:colorgroup(fieldset.colour, app.colour)
+            }
+        </div>
+
+        <div class="col-md-8">
+            #box("Text editing") {
+                #form:wysiwyg(fieldset.emailTemplate, app.emailTemplate)
+            }
+        </div>
+    </div>
+}

@@ -57,6 +57,19 @@ import Vapor
 /// <span class="help-block">...validation message</span>
 /// </div>
 /// ```
+
+public func this(_ lhs: String?, or rhs: String?) -> String {
+    if let lhs = lhs, !lhs.isEmpty {
+        return lhs
+    }
+
+    if let rhs = rhs, !rhs.isEmpty {
+        return rhs
+    }
+
+    return ""
+}
+
 public final class TextGroup: BasicTag {
     public init(){}
     public let name = "form:textgroup"
@@ -71,7 +84,7 @@ public final class TextGroup: BasicTag {
         }
 
         // Retrieve input value, value from fieldset else passed default value
-        let inputValue = fieldset?["value"]?.string ?? arguments[1]?.string ?? ""
+        let inputValue = this(fieldset?["value"]?.string, or: arguments[1]?.string)
 
         let label = fieldset?["label"]?.string ?? fieldsetPath
 

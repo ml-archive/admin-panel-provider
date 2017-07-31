@@ -1,0 +1,79 @@
+#extend("Layout/page")
+
+#export("title") { Backend Users | #if(user) { Edit } ##else() { Create }}
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    #if(user) {
+        <h1>Edit Backend User<small>#(user.name)</small></h1>
+    } ##else() {
+        <h1>Create Backend User</h1>
+    }
+}
+
+#export("breadcrumb") {
+    <li><a href="/admin/backend/users">Backend Users</a></li>
+    <li class="active">
+        #if(user) {
+            Edit Backend User
+        } ##else() {
+            Create Backend User
+        }
+    </li>
+}
+
+#export("content") {
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        #box:open("User Details", "primary")
+            #box:body() {
+                #if(user) {
+                    #form:open("/admin/backend/users/#(user.id)/edit", "post", true)
+                    <input type="hidden" name="id" value="#(user.id)">
+                } ##else() {
+                    #form:open("/admin/backend/users/store", "post", true)
+                }
+            
+                #form:textgroup(fieldset.name, user.name)
+                #form:textgroup(fieldset.title, user.title)
+                #form:emailgroup(fieldset.email, user.email)
+
+                #form:selectgroup(roles, fieldset.role, user.role) 
+
+                #if(user) {
+                } ##else() {
+                    #form:checkboxgroup(fieldset.sendEmail, true)
+                }
+                
+                <hr>
+
+                <div class="form-group">
+                    <label for="fileInput">Profile image</label>
+                    <input type="file" id="fileInput" accept="image/*" name="profileImage">
+                </div>
+
+                <hr>
+                <h4 class="margin-top">
+                    Choose password
+                    <br>
+                    <small>(leave empty for random password with a forced reset) (min. 8 characters)</small>
+                </h4>
+
+                #form:passwordgroup(fieldset.password, nil)
+                #form:passwordgroup(fieldset.passwordRepeat, nil)
+                #form:checkboxgroup(fieldset.shouldResetPassword, user.shouldResetPassword)
+
+            }
+
+            #box:footer() {
+                <a href="/admin/backend/users" class="btn btn-default">Cancel</a>
+                <button type="submit" class="btn btn-primary pull-right ">#if(user) { Edit } ##else() { Create } backend user</button>
+            }
+        #form:close()
+        #box:close()
+    </div>
+</div>
+}
