@@ -1,0 +1,16 @@
+#extend("Layout/page")
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    <h1>Dashboard<small> Version 2.0</small></h1>
+}
+
+#export("content") {
+<h1>Getting started:</h1><ul>
+    <li><h3><a href="https://github.com/nodes-vapor/admin-panel-provider/wiki">Admin Panel Wiki</a></h2><br></li>
+    <li><h3><a href="https://adminlte.io/themes/AdminLTE/documentation/index.html">AdminLTE Documentation</h2></li>
+</ul>   
+}

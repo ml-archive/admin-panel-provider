@@ -1,6 +1,6 @@
-#extend("Layout/fulscreen-page")
+{% extends "Layout/page.stencil" %}
 
-#export("content") {
+{% block content %}
 <style>
 .login-wrapper {
   height: 100vh;
@@ -12,11 +12,11 @@
 </style>
 <section id="login" class="panel container-fluid login-wrapper panel-default">
     <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
-        #if(request.storage.adminPanel.sso) {
+        {% if request.storage.adminPanel.sso %}
         <a href="/admin/login/sso" id="alternative-login" class="sso">
             <span class="sr-only">Nodes SSO</span>
         </a>
-        }
+        {% endif %}
         
         <div class="panel-heading" style="text-align: center;">
             <div class="logo" style="margin-bottom: 20px;">
@@ -46,4 +46,4 @@
         </form>
     </div>
 </section>
-}
+{% endblock %}

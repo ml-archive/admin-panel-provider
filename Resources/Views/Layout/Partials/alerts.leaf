@@ -1,0 +1,42 @@
+<!--Error-->
+#if(request.storage._flash.error) {
+    <div class="alert alert-danger alert-dismissible fade in to-be-animated-in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <span class="icon fa fa-ban"></span>
+        #(request.storage._flash.error)
+    </div>
+}
+
+<!--Success-->
+#if(request.storage._flash.success) {
+<div class="alert alert-success alert-dismissible fade in to-be-animated-in" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <span class="icon fa fa-check"></span>
+    #(request.storage._flash.success)
+</div>
+}
+
+<!--Warning-->
+#if(request.storage._flash.warning) {
+<div class="alert alert-warning alert-dismissible fade in to-be-animated-in" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <span><i class="icon fa fa-info"></i> #raw(request.storage._flash.warning)</span>
+</div>
+}
+
+<!--Info-->
+#if(request.storage._flash.info) {
+<div class="alert alert-info alert-dismissible fade in to-be-animated-in" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <span class="icon fa fa-info"></span>
+    #(request.storage._flash.info)
+</div>
+}
