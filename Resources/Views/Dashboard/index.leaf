@@ -12,8 +12,8 @@
     <div class="row">
         <div class="col-md-3 col-sm-6 col-xs-12">
             #infobox("Messages", "1,410", "aqua", "gear")
-        </div>
-        <div class="col-md-3 col-sm-6 col-xs-12">
+<h1>Getting started:</h1><ul>
+    <li><h3><a href="https://github.com/nodes-vapor/admin-panel-provider/wiki">Admin Panel Wiki</a></h2><br></li>
             #infobox("Likes", "41,410", "red", "google-plus")
         </div>
         <div class="col-md-3 col-sm-6 col-xs-12">
@@ -22,7 +22,7 @@
         <div class="col-md-3 col-sm-6 col-xs-12">
             #infobox("New members", "2,000", "yellow", "users")
         </div>
-    </div>
+    <li><h3><a href="https://adminlte.io/themes/AdminLTE/documentation/index.html">AdminLTE Documentation</h2></li>
     <div class="row">
         <div class="col-md-4">
             #box("Departure") {
@@ -43,5 +43,5 @@
                 #form:wysiwyg(fieldset.emailTemplate, app.emailTemplate)
             }
         </div>
-    </div>
+</ul>   
 }

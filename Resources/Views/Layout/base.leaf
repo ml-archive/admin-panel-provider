@@ -38,7 +38,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="#(request.storage.adminPanel.skin) sidebar-mini">
+<body class="#(request.storage.adminPanel.skin) #if(collapse) { sidebar-collapse } ##else() { sidebar-mini }">
 <script src="/plugins/jQuery/jquery-2.2.3.min.js"></script>
 <script src="/dist/js/bootstrap-colorpicker.min.js"></script>
     <div class="wrapper">

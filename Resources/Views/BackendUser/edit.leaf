@@ -31,10 +31,10 @@
         #box:open("User Details", "primary")
             #box:body() {
                 #if(user) {
-                    #form:open("/admin/backend/users/#(user.id)/edit", "post", true)
+                    #form:open("/admin/backend/users/#(user.id)/edit", "post", "true")
                     <input type="hidden" name="id" value="#(user.id)">
                 } ##else() {
-                    #form:open("/admin/backend/users/store", "post", true)
+                    #form:open("/admin/backend/users/store", "post", "true")
                 }
             
                 #form:textgroup(fieldset.name, user.name)
@@ -43,19 +43,23 @@
 
                 #form:selectgroup(roles, fieldset.role, user.role) 
 
-                #if(user) {
-                } ##else() {
-                    #form:checkboxgroup(fieldset.sendEmail, true)
+                #if(request.storage.adminPanel.emailEnabled) {
+                    #if(user) {
+                    } ##else() {
+                        #form:checkboxgroup(fieldset.sendEmail, true)
+                    }
                 }
                 
-                <hr>
+                #if(request.storage.adminPanel.imageUploadsEnabled) {
+                    <hr>
 
-                <div class="form-group">
-                    <label for="fileInput">Profile image</label>
-                    <input type="file" id="fileInput" accept="image/*" name="profileImage">
-                </div>
+                    <div class="form-group">
+                        <label for="fileInput">Profile image</label>
+                        <input type="file" id="fileInput" accept="image/*" name="profileImage">
+                    </div>
 
-                <hr>
+                    <hr>
+                }
                 <h4 class="margin-top">
                     Choose password
                     <br>

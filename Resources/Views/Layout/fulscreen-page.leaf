@@ -1,0 +1,10 @@
+#extend("Layout/base")
+
+#export("page") {
+    <div class="content-wrapper">
+        <section class="content container-fluid">
+            #embed("Layout/Partials/alerts")
+            #import("content")
+        </section>
+    </div>
+}
