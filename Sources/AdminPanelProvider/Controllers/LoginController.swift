@@ -9,7 +9,7 @@ public final class LoginController {
     }
 
     public func landing(req: Request) throws -> ResponseRepresentable {
-        return try renderer.make("Login/index", for: req)
+        return try renderer.make("Login/index", ["collapse": "true"], for: req)
     }
 
     public func dashboard(req: Request) throws -> ResponseRepresentable {
