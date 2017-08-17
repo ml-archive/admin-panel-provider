@@ -1,0 +1,2 @@
+#sidebar:header("Backend")
+#sidebar:link("Users", "/admin/backend/users", "user")

@@ -72,6 +72,9 @@ extension Provider {
         stem.register(InfoBox())
         stem.register(MenuToggle())
         stem.register(MenuFooter())
+        stem.register(SidebarHeader())
+        stem.register(SidebarLink())
+        stem.register(SidebarContainer())
     }
 
     public func setupStencilRenderer(_ renderer: StencilRenderer) {
