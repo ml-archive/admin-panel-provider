@@ -1,4 +1,4 @@
-#extend("Layout/fulscreen-page")
+#extend("Layout/fullscreen-page")
 
 #export("content") {
 <style>

@@ -3,6 +3,7 @@ import Vapor
 import Stencil
 import Storage
 import Sessions
+import AuthProvider
 import LeafProvider
 import StencilProvider
 
@@ -48,14 +49,19 @@ public final class Provider: Vapor.Provider {
 
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
+        Middlewares.unsecured.append(PersistMiddleware(BackendUser.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
         Middlewares.unsecured.append(ActionMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
+        Middlewares.secured.append(RedirectMiddleware(path: "/admin/login"))
+        Middlewares.secured.append(PasswordAuthenticationMiddleware(BackendUser.self))
 
         config.preparations.append(BackendUser.self)
         config.preparations.append(Action.self)
+
+        config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
     }
 
     public func boot(_ droplet: Droplet) throws {
@@ -78,6 +84,7 @@ public final class Provider: Vapor.Provider {
             isEmailEnabled: config.isEmailEnabled,
             isStorageEnabled: config.isStorageEnabled
         )
+
         try droplet.collection(bUserRoutes)
     }
 

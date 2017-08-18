@@ -1,5 +1,6 @@
 import Vapor
 import BCrypt
+import AuthProvider
 import FluentProvider
 
 public final class BackendUser: Model {
@@ -79,8 +80,22 @@ extension BackendUser: ViewDataRepresentable {
     }
 }
 
+extension BackendUser: NodeRepresentable {
+    public func makeNode(in context: Context?) throws -> Node {
+        return Node([
+            "id": Node.number(.int(id?.int ?? 0)),
+            "name": .string(name),
+            "title": .string(title),
+            "email": .string(email),
+            "role": .string(role),
+            "avatarUrl": .string(avatarUrl)
+        ])
+    }
+}
+
 extension BackendUser: Timestampable {}
 extension BackendUser: SoftDeletable {}
+extension BackendUser: SessionPersistable {}
 extension BackendUser: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
@@ -97,5 +112,17 @@ extension BackendUser: Preparation {
 
     public static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+extension BackendUser: PasswordAuthenticatable {
+    public static func authenticate(_ credentials: Password) throws -> BackendUser {
+        guard
+            let user = try BackendUser.makeQuery().filter("email", credentials.username).first(),
+            try BCryptHasher().check(credentials.password, matchesHash: user.password)
+        else {
+            throw Abort.unauthorized
+        }
+
+        return user
     }
 }

@@ -165,4 +165,9 @@ public final class BackendUserController {
         try user.restore()
         return redirect("/admin/backend/users").flash(.success, "User has been restored")
     }
+
+    public func logout(req: Request) throws -> ResponseRepresentable {
+        try req.auth.unauthenticate()
+        return redirect("/admin/login").flash(.info, "Logged out")
+    }
 }
