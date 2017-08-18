@@ -84,7 +84,6 @@ public final class BackendUserController {
         do {
             user = try req.parameters.next(BackendUser.self)
         } catch {
-            // TODO: redirect back to where user came from
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
@@ -98,7 +97,6 @@ public final class BackendUserController {
             do {
                 user = try req.parameters.next(BackendUser.self)
             } catch {
-                // TODO: redirect back to where user came from
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
@@ -138,13 +136,11 @@ public final class BackendUserController {
         do {
             user = try req.parameters.next(BackendUser.self)
         } catch {
-            // TODO: redirect back to where user came from
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
         try user.delete()
 
-        // TODO: redirect back to where user came from
         return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.int ?? 0)/restore'>Undo</a>")
     }
 
@@ -158,7 +154,6 @@ public final class BackendUserController {
 
             user = u
         } catch {
-            // TODO: redirect back to where user came from
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
