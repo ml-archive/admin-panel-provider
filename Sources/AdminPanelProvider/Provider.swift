@@ -1,12 +1,14 @@
 import Flash
 import Vapor
 import Stencil
+import Storage
 import Sessions
 import LeafProvider
 import StencilProvider
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
+    public var config: PanelConfig!
 
     public init() {}
 
@@ -15,11 +17,39 @@ public final class Provider: Vapor.Provider {
     }
 
     public func boot(_ config: Config) throws {
-        try Middlewares.unsecured.append(PanelConfigMiddleware(panelName: "Nodes Admin", skin: .black))
+        var panelName = "Admin Panel"
+        var skin: PanelConfig.Skin = .blue
+        var isEmailEnabled = true
+        var isStorageEnabled = false
+
+        if config["mail"] == nil {
+            print("WARNING: couldn't find `mail.json`. Email features will be disabled")
+            isEmailEnabled = false
+        }
+
+        if let adminConfig = config["admin"] {
+            panelName = adminConfig["name"]?.string ?? panelName
+            if
+                let userSkinConfig = adminConfig["skin"]?.string,
+                let userSkin = PanelConfig.Skin(rawValue: userSkinConfig)
+            {
+                skin = userSkin
+            }
+        }
+
+        let panelConfig = PanelConfig(
+            panelName: panelName,
+            skin: skin,
+            isEmailEnabled: isEmailEnabled,
+            isStorageEnabled: isStorageEnabled
+        )
+
+        self.config = panelConfig
+
+        try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
-        // TODO: add config check for actions and tracking
         Middlewares.unsecured.append(ActionMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
@@ -42,7 +72,12 @@ public final class Provider: Vapor.Provider {
         let panelRoutes = PanelRoutes(renderer: renderer)
         try droplet.collection(panelRoutes)
 
-        let bUserRoutes = BackendUserRoutes(renderer: renderer, env: droplet.config.environment)
+        let bUserRoutes = BackendUserRoutes(
+            renderer: renderer,
+            env: droplet.config.environment,
+            isEmailEnabled: config.isEmailEnabled,
+            isStorageEnabled: config.isStorageEnabled
+        )
         try droplet.collection(bUserRoutes)
     }
 

@@ -4,8 +4,18 @@ import Vapor
 public final class BackendUserRoutes: RouteCollection {
     public let controller: BackendUserController
 
-    public init(renderer: ViewRenderer, env: Environment) {
-        controller = BackendUserController(renderer: renderer, env: env)
+    public init(
+        renderer: ViewRenderer,
+        env: Environment,
+        isEmailEnabled: Bool,
+        isStorageEnabled: Bool
+    ) {
+        controller = BackendUserController(
+            renderer: renderer,
+            env: env,
+            isEmailEnabled: isEmailEnabled,
+            isStorageEnabled: isStorageEnabled
+        )
     }
 
     public func build(_ builder: RouteBuilder) throws {

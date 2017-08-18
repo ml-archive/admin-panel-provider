@@ -18,7 +18,10 @@ public final class SidebarContainer: Tag {
             throw Error.invalidSyntax("sidebar:link parse error: expected a valid title")
         }
 
-        var link = "<li class=\"treeview\"><a href=\"#\">"
+        let path = arguments.extractPath()
+        let isActive = Request.isActive(path, nil, arguments.list.dropFirst(), arguments.stem, arguments.context)
+
+        var link = "<li class=\"treeview\(isActive ? " active menu-open" : "")\"><a href=\"#\">"
 
         if let icon = arguments[1]?.string {
             link.append("<i class=\"fa fa-\(icon)\"></i> ")

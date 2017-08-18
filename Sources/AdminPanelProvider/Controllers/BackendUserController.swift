@@ -1,14 +1,22 @@
-import JWT
 import Flash
 import Vapor
 
 public final class BackendUserController {
     public let renderer: ViewRenderer
     public let env: Environment
+    public let isEmailEnabled: Bool
+    public let isStorageEnabled: Bool
 
-    public init(renderer: ViewRenderer, env: Environment) {
+    public init(
+        renderer: ViewRenderer,
+        env: Environment,
+        isEmailEnabled: Bool,
+        isStorageEnabled: Bool
+    ) {
         self.renderer = renderer
         self.env = env
+        self.isEmailEnabled = isEmailEnabled
+        self.isStorageEnabled = isStorageEnabled
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
@@ -54,7 +62,7 @@ public final class BackendUserController {
             )
             try user.save()
 
-            if form.sendEmail {
+            if form.sendEmail, isEmailEnabled {
                 // TODO: send emails
             }
 

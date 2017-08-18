@@ -43,14 +43,14 @@
 
                 #form:selectgroup(roles, fieldset.role, user.role) 
 
-                #if(request.storage.adminPanel.emailEnabled) {
+                #if(request.storage.adminPanel.isEmailEnabled) {
                     #if(user) {
                     } ##else() {
                         #form:checkboxgroup(fieldset.sendEmail, true)
                     }
                 }
                 
-                #if(request.storage.adminPanel.imageUploadsEnabled) {
+                #if(request.storage.adminPanel.isStorageEnabled) {
                     <hr>
 
                     <div class="form-group">

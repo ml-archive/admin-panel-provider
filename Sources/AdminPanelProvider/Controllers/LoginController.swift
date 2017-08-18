@@ -1,4 +1,3 @@
-import JWT
 import Vapor
 
 public final class LoginController {
