@@ -1,20 +1,26 @@
+import Leaf
+import SMTP
 import Flash
 import Vapor
+import Storage
 
 public final class BackendUserController {
     public let renderer: ViewRenderer
     public let env: Environment
+    public let mailgun: Mailgun?
     public let isEmailEnabled: Bool
     public let isStorageEnabled: Bool
 
     public init(
         renderer: ViewRenderer,
         env: Environment,
+        mailgun: Mailgun?,
         isEmailEnabled: Bool,
         isStorageEnabled: Bool
     ) {
         self.renderer = renderer
         self.env = env
+        self.mailgun = mailgun
         self.isEmailEnabled = isEmailEnabled
         self.isStorageEnabled = isStorageEnabled
     }
@@ -50,6 +56,12 @@ public final class BackendUserController {
                 return response
             }
 
+            var avatar: String? = nil
+            if let profileImage = req.formData?["profileImage"], let filename = profileImage.filename, isStorageEnabled {
+                let path = try Storage.upload(formData: profileImage, fileName: filename, folder: "profile")
+                avatar = path
+            }
+
             let user = try BackendUser(
                 name: form.name,
                 title: form.title,
@@ -57,13 +69,27 @@ public final class BackendUserController {
                 password: form.password,
                 role: form.role,
                 shouldResetPassword: form.shouldResetPassword,
-                // TODO: image uploads
-                avatar: nil
+                avatar: avatar
             )
             try user.save()
 
             if form.sendEmail, isEmailEnabled {
-                // TODO: send emails
+                var context: ViewData = try [
+                    "user": user.makeViewData(),
+                    "name": "<PLACEHOLDER> TODO"
+                ]
+
+                if form.hasRandomPassword {
+                    context["password"] = .string(form.password)
+                }
+
+                sendEmail(
+                    from: "test@tested.com",
+                    to: user.email,
+                    subject: "Welcome to Admin Panel",
+                    path: "Emails/welcome",
+                    context: context
+                )
             }
 
             return redirect("/admin/backend/users").flash(.success, "Successfully created user")
@@ -109,13 +135,17 @@ public final class BackendUserController {
                 return response
             }
 
-            // TODO: image uploads
             user.name = form.name
             user.title = form.title
             user.email = form.email
             user.password = try BCryptHasher().make(form.password.makeBytes()).makeString()
             user.role = form.role
             user.shouldResetPassword = form.shouldResetPassword
+
+            if let profileImage = req.formData?["profileImage"], let filename = profileImage.filename, isStorageEnabled {
+                let path = try Storage.upload(formData: profileImage, fileName: filename, folder: "profile")
+                user.avatar = path
+            }
 
             try user.save()
             return redirect("/admin/backend/users").flash(.success, "User has been updated")
@@ -164,5 +194,32 @@ public final class BackendUserController {
     public func logout(req: Request) throws -> ResponseRepresentable {
         try req.auth.unauthenticate()
         return redirect("/admin/login").flash(.info, "Logged out")
+    }
+}
+
+extension BackendUserController {
+    func sendEmail(
+        from: String,
+        to: String,
+        subject: String,
+        path: String,
+        context: ViewData
+    ) {
+        guard let mailgun = mailgun else { return }
+
+        do {
+            let template = try renderer.make(path, context)
+            let email = Email(
+                from: from,
+                to: to,
+                subject: subject,
+                body: EmailBody(type: .html, content: template.makeBytes().makeString())
+            )
+            
+            try mailgun.send(email)
+        } catch {
+            // TODO: bugsnag?
+            print(error)
+        }
     }
 }

@@ -7,12 +7,14 @@ public final class BackendUserRoutes: RouteCollection {
     public init(
         renderer: ViewRenderer,
         env: Environment,
+        mailgun: Mailgun?,
         isEmailEnabled: Bool,
         isStorageEnabled: Bool
     ) {
         controller = BackendUserController(
             renderer: renderer,
             env: env,
+            mailgun: mailgun,
             isEmailEnabled: isEmailEnabled,
             isStorageEnabled: isStorageEnabled
         )

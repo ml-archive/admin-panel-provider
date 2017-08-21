@@ -137,7 +137,7 @@ extension BackendUserForm {
 
         let hasRandomPassword = (password?.isEmpty ?? true) && (passwordRepeat?.isEmpty ?? true)
         if hasRandomPassword {
-            password = "Hello, world!"
+            password = String.random(12)
             shouldResetPassword = true
         } else {
             if let password = password {

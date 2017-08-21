@@ -21,11 +21,21 @@ public final class Provider: Vapor.Provider {
         var panelName = "Admin Panel"
         var skin: PanelConfig.Skin = .blue
         var isEmailEnabled = true
-        var isStorageEnabled = false
+        var isStorageEnabled = true
 
-        if config["mail"] == nil {
-            print("WARNING: couldn't find `mail.json`. Email features will be disabled")
+        if config["mailgun"] == nil {
+            print("WARNING: couldn't find `mailgun.json`. Email features will be disabled")
             isEmailEnabled = false
+        }
+
+        if config["storage"] != nil {
+            // only add storage if it hasn't been added yet
+            if !config.providers.contains(where: { type(of: $0).repositoryName == "Storage" }) {
+                try config.addProvider(StorageProvider.self)
+            }
+        } else {
+            print("WARNING: couldn't find `storage.json`. Image uploads will be disabled")
+            isStorageEnabled = false
         }
 
         if let adminConfig = config["admin"] {
@@ -72,15 +82,32 @@ public final class Provider: Vapor.Provider {
         }
 
         let renderer = droplet.view
-        let loginCollection = LoginRoutes(renderer: renderer)
+
+        let ssoController: SSO?
+        if droplet.config["sso"] != nil {
+            ssoController = try SSO(config: droplet.config)
+        } else {
+            print("WARNING: couldn't find `sso.json`. SSO will be disabled")
+            ssoController = nil
+        }
+
+        let loginCollection = LoginRoutes(renderer: renderer, ssoController: ssoController)
         try droplet.collection(loginCollection)
 
         let panelRoutes = PanelRoutes(renderer: renderer)
         try droplet.collection(panelRoutes)
 
+        let mailgun: Mailgun?
+        if config.isEmailEnabled {
+            mailgun = try Mailgun(config: droplet.config)
+        } else {
+            mailgun = nil
+        }
+
         let bUserRoutes = BackendUserRoutes(
             renderer: renderer,
             env: droplet.config.environment,
+            mailgun: mailgun,
             isEmailEnabled: config.isEmailEnabled,
             isStorageEnabled: config.isStorageEnabled
         )
@@ -117,6 +144,7 @@ extension Provider {
         stem.register(SidebarHeader())
         stem.register(SidebarLink())
         stem.register(SidebarContainer())
+        stem.register(ImageRound())
     }
 
     public func setupStencilRenderer(_ renderer: StencilRenderer) {

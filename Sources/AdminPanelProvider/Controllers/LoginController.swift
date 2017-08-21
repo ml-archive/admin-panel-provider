@@ -33,7 +33,16 @@ public final class LoginController {
     }
 
     public func landing(req: Request) throws -> ResponseRepresentable {
-        return try renderer.make("Login/index", ["collapse": "true"], for: req)
+        let next = req.query?["next"]
+
+        return try renderer.make(
+            "Login/index",
+            [
+                "collapse": "true",
+                "next": next
+            ],
+            for: req
+        )
     }
 
     public func dashboard(req: Request) throws -> ResponseRepresentable {

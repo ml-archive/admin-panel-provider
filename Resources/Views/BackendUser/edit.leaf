@@ -26,6 +26,75 @@
 }
 
 #export("content") {
+<style>
+.upload-drop-zone {
+  height: 200px;
+  border-width: 2px;
+  margin-bottom: 20px;
+}
+
+/* skin.css Style*/
+.upload-drop-zone {
+  color: #()ccc;
+  border-style: dashed;
+  border-color: #()ccc;
+  line-height: 200px;
+  text-align: center
+}
+.upload-drop-zone.drop {
+  color: #()222;
+  border-color: #()222;
+}
+
+.profile-preview {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+}
+
+</style>
+
+<script>
+$(function() {
+    'use strict';
+
+    function upload(files) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var result = e.target.result;
+            document.getElementById('previewImage').setAttribute('src', result);
+            //document.getElementById('fileInput').value = result;
+        };
+
+        reader.readAsDataURL(files[0]);
+    }
+
+    var dropZone = document.getElementById('drop-zone');
+    var uploadForm = document.forms[0];
+
+    var startUpload = function(files) {
+        console.log(files)
+    }
+
+    dropZone.ondrop = function(e) {
+        e.preventDefault();
+        this.className = 'upload-drop-zone';
+        upload(e.dataTransfer.files);
+    }
+
+    dropZone.ondragover = function() {
+        this.className = 'upload-drop-zone drop';
+        return false;
+    }
+
+    dropZone.ondragleave = function() {
+        this.className = 'upload-drop-zone';
+        return false;
+    }
+
+});
+</script>
+
 <div class="row">
     <div class="col-sm-12 col-md-6">
         #box:open("User Details", "primary")
@@ -37,9 +106,9 @@
                     #form:open("/admin/backend/users/store", "post", "true")
                 }
             
-                #form:textgroup(fieldset.name, user.name)
-                #form:textgroup(fieldset.title, user.title)
-                #form:emailgroup(fieldset.email, user.email)
+                #form:textgroup(fieldset.name, user.name, "", "required")
+                #form:textgroup(fieldset.title, user.title, "", "required")
+                #form:emailgroup(fieldset.email, user.email, "", "required")
 
                 #form:selectgroup(roles, fieldset.role, user.role) 
 
@@ -52,11 +121,16 @@
                 
                 #if(request.storage.adminPanel.isStorageEnabled) {
                     <hr>
-
+                    #image:round(user.avatarUrl, "profile-preview", "id='previewImage'")
                     <div class="form-group">
                         <label for="fileInput">Profile image</label>
                         <input type="file" id="fileInput" accept="image/*" name="profileImage">
                     </div>
+					
+					<h4>Or drag and drop files below</h4>
+				  <div class="upload-drop-zone" id="drop-zone">
+					Just drag and drop files here
+				  </div>
 
                     <hr>
                 }

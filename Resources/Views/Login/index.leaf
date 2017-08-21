@@ -20,7 +20,7 @@
         
         <div class="panel-heading" style="text-align: center;">
             <div class="logo" style="margin-bottom: 20px;">
-                <img src="https://avatars3.githubusercontent.com/u/20334998?v=4&s=96">
+                <a href="/admin/login/sso"><img src="https://avatars3.githubusercontent.com/u/20334998?v=4&s=96"></a>
             </div>
             <h3 class="panel-title margin-bottom">Login</h3>
         </div>

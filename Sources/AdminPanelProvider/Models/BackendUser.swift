@@ -1,5 +1,6 @@
 import Vapor
 import BCrypt
+import Storage
 import AuthProvider
 import FluentProvider
 
@@ -69,26 +70,26 @@ public final class BackendUser: Model {
 
 extension BackendUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
-        return ViewData(viewData: [
+        return try ViewData(viewData: [
             "id": .number(.int(id?.int ?? 0)),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
             "role": .string(role),
-            "avatarUrl": .string(avatarUrl)
+            "avatarUrl": .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
 }
 
 extension BackendUser: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
-        return Node([
+        return try Node([
             "id": Node.number(.int(id?.int ?? 0)),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
             "role": .string(role),
-            "avatarUrl": .string(avatarUrl)
+            "avatarUrl":  .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
 }
