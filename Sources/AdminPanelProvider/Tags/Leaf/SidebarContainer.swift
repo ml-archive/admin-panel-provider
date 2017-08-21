@@ -23,7 +23,7 @@ public final class SidebarContainer: Tag {
 
         var link = "<li class=\"treeview\(isActive ? " active menu-open" : "")\"><a href=\"#\">"
 
-        if let icon = arguments[1]?.string {
+        if let icon = arguments[2]?.string {
             link.append("<i class=\"fa fa-\(icon)\"></i> ")
         }
 

@@ -1,4 +1,4 @@
-#sidebar:container("Backend", "/admin/backend/users*") {
+#sidebar:container("Backend", "/admin/backend/users*", "server") {
     #sidebar:link("Users", "/admin/backend/users", "user", "/admin/backend/users*")
 }
 
