@@ -63,7 +63,7 @@ $(function() {
         reader.onload = function(e) {
             var result = e.target.result;
             document.getElementById('previewImage').setAttribute('src', result);
-            //document.getElementById('fileInput').value = result;
+            document.getElementById('hiddenFile').value = result;
         };
 
         reader.readAsDataURL(files[0]);
@@ -91,7 +91,10 @@ $(function() {
         this.className = 'upload-drop-zone';
         return false;
     }
-
+    
+    document.getElementById('fileInput').onchange = function(e) {
+        upload(e.target.files);
+    };
 });
 </script>
 
@@ -124,7 +127,8 @@ $(function() {
                     #image:round(user.avatarUrl, "profile-preview", "id='previewImage'")
                     <div class="form-group">
                         <label for="fileInput">Profile image</label>
-                        <input type="file" id="fileInput" accept="image/*" name="profileImage">
+                        <input type="file" id="fileInput" accept="image/*" name="">
+                        <input type="hidden" id="hiddenFile" name="profileImage">
                     </div>
 					
 					<h4>Or drag and drop files below</h4>

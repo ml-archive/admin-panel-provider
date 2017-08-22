@@ -57,8 +57,8 @@ public final class BackendUserController {
             }
 
             var avatar: String? = nil
-            if let profileImage = req.formData?["profileImage"], let filename = profileImage.filename, isStorageEnabled {
-                let path = try Storage.upload(formData: profileImage, fileName: filename, folder: "profile")
+            if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
+                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
                 avatar = path
             }
 
@@ -83,11 +83,12 @@ public final class BackendUserController {
                     context["password"] = .string(form.password)
                 }
 
-                sendEmail(
+                mailgun?.sendEmail(
                     from: "test@tested.com",
                     to: user.email,
                     subject: "Welcome to Admin Panel",
                     path: "Emails/welcome",
+                    renderer: renderer,
                     context: context
                 )
             }
@@ -142,8 +143,8 @@ public final class BackendUserController {
             user.role = form.role
             user.shouldResetPassword = form.shouldResetPassword
 
-            if let profileImage = req.formData?["profileImage"], let filename = profileImage.filename, isStorageEnabled {
-                let path = try Storage.upload(formData: profileImage, fileName: filename, folder: "profile")
+            if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
+                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
                 user.avatar = path
             }
 
@@ -157,7 +158,7 @@ public final class BackendUserController {
                 errorMessage = "Failed to create user: \(error)"
             }
 
-            return redirect("/admin/backend/users/create").flash(.error, errorMessage)
+            return redirect("/admin/backend/users").flash(.error, errorMessage)
         }
     }
 
@@ -167,6 +168,11 @@ public final class BackendUserController {
             user = try req.parameters.next(BackendUser.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
+        }
+
+        let requestingUser = req.auth.authenticated(BackendUser.self)
+        guard user.id != requestingUser?.id else {
+            return redirect("/admin/backend/users").flash(.error, "Cannot delete yourself")
         }
 
         try user.delete()
@@ -194,32 +200,5 @@ public final class BackendUserController {
     public func logout(req: Request) throws -> ResponseRepresentable {
         try req.auth.unauthenticate()
         return redirect("/admin/login").flash(.info, "Logged out")
-    }
-}
-
-extension BackendUserController {
-    func sendEmail(
-        from: String,
-        to: String,
-        subject: String,
-        path: String,
-        context: ViewData
-    ) {
-        guard let mailgun = mailgun else { return }
-
-        do {
-            let template = try renderer.make(path, context)
-            let email = Email(
-                from: from,
-                to: to,
-                subject: subject,
-                body: EmailBody(type: .html, content: template.makeBytes().makeString())
-            )
-            
-            try mailgun.send(email)
-        } catch {
-            // TODO: bugsnag?
-            print(error)
-        }
     }
 }

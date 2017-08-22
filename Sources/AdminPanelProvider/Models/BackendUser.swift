@@ -68,6 +68,13 @@ public final class BackendUser: Model {
     }
 }
 
+extension BackendUser {
+    public func updatePassword(_ newPass: String) throws {
+        password = try BCryptHasher().make(newPass.makeBytes()).makeString()
+        try save()
+    }
+}
+
 extension BackendUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [

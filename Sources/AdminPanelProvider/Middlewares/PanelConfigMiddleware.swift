@@ -2,16 +2,28 @@ import Vapor
 
 public struct PanelConfig {
     public let panelName: String
+    public let baseUrl: String
     public let skin: Skin
 
     public let isEmailEnabled: Bool
+    public let fromEmail: String?
+
     public let isStorageEnabled: Bool
 
-    public init(panelName: String, skin: Skin, isEmailEnabled: Bool, isStorageEnabled: Bool) {
+    public init(
+        panelName: String,
+        baseUrl: String,
+        skin: Skin,
+        isEmailEnabled: Bool,
+        isStorageEnabled: Bool,
+        fromEmail: String?
+    ) {
         self.panelName = panelName
+        self.baseUrl = baseUrl
         self.skin = skin
         self.isEmailEnabled = isEmailEnabled
         self.isStorageEnabled = isStorageEnabled
+        self.fromEmail = fromEmail
     }
 
     public enum Skin: String {

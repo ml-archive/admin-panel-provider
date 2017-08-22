@@ -4,8 +4,8 @@ import Vapor
 public final class PanelRoutes: RouteCollection {
     public let controller: LoginController
 
-    public init(renderer: ViewRenderer) {
-        controller = LoginController(renderer: renderer)
+    public init(renderer: ViewRenderer, mailgun: Mailgun?, panelConfig: PanelConfig) {
+        controller = LoginController(renderer: renderer, mailgun: mailgun, panelConfig: panelConfig)
     }
 
     public func build(_ builder: RouteBuilder) throws {

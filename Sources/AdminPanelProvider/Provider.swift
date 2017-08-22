@@ -19,11 +19,19 @@ public final class Provider: Vapor.Provider {
 
     public func boot(_ config: Config) throws {
         var panelName = "Admin Panel"
+        var baseUrl = "127.0.0.1:8080"
         var skin: PanelConfig.Skin = .blue
         var isEmailEnabled = true
         var isStorageEnabled = true
+        var fromEmail: String?
 
-        if config["mailgun"] == nil {
+        if let config = config["mailgun"] {
+            guard let email = config["fromAddress"]?.string else {
+                throw ConfigError.missing(key: ["fromAddress"], file: "mailgun.json", desiredType: String.self)
+            }
+
+            fromEmail = email
+        } else {
             print("WARNING: couldn't find `mailgun.json`. Email features will be disabled")
             isEmailEnabled = false
         }
@@ -46,13 +54,19 @@ public final class Provider: Vapor.Provider {
             {
                 skin = userSkin
             }
+
+            if let url = adminConfig["baseUrl"]?.string {
+                baseUrl = url
+            }
         }
 
         let panelConfig = PanelConfig(
             panelName: panelName,
+            baseUrl: baseUrl,
             skin: skin,
             isEmailEnabled: isEmailEnabled,
-            isStorageEnabled: isStorageEnabled
+            isStorageEnabled: isStorageEnabled,
+            fromEmail: fromEmail
         )
 
         self.config = panelConfig
@@ -69,6 +83,7 @@ public final class Provider: Vapor.Provider {
         Middlewares.secured.append(PasswordAuthenticationMiddleware(BackendUser.self))
 
         config.preparations.append(BackendUser.self)
+        config.preparations.append(UserResetToken.self)
         config.preparations.append(Action.self)
 
         config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
@@ -91,18 +106,27 @@ public final class Provider: Vapor.Provider {
             ssoController = nil
         }
 
-        let loginCollection = LoginRoutes(renderer: renderer, ssoController: ssoController)
-        try droplet.collection(loginCollection)
-
-        let panelRoutes = PanelRoutes(renderer: renderer)
-        try droplet.collection(panelRoutes)
-
         let mailgun: Mailgun?
         if config.isEmailEnabled {
             mailgun = try Mailgun(config: droplet.config)
         } else {
             mailgun = nil
         }
+
+        let loginCollection = LoginRoutes(
+            renderer: renderer,
+            ssoController: ssoController,
+            mailgun: mailgun,
+            panelConfig: config
+        )
+        try droplet.collection(loginCollection)
+
+        let panelRoutes = PanelRoutes(
+            renderer: renderer,
+            mailgun: mailgun,
+            panelConfig: config
+        )
+        try droplet.collection(panelRoutes)
 
         let bUserRoutes = BackendUserRoutes(
             renderer: renderer,
