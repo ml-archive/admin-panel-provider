@@ -3,7 +3,7 @@ import FluentProvider
 
 public final class UserResetToken: Model {
     public let storage = Storage()
-    public static let name = "adminUserResetToken"
+    public static let name = "adminPanelUserResetToken"
     
     public let email: String
     public let token: String

@@ -6,6 +6,7 @@ import FluentProvider
 
 public final class User: Model {
     public let storage = Storage()
+    public static let name = "adminPanelUser"
 
     public var name: String
     public var title: String
