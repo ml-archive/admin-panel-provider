@@ -30,7 +30,7 @@ public final class SidebarLink: BasicTag {
         var link = "<li class=\"\(isActive ? "active" : "")\"><a href=\"\(path)\">"
 
         if let icon = arguments[2]?.string {
-            link.append("<i class=\"fa fa-\(icon)\"></i> ")
+            link.append("<i class=\"\(icon)\"></i> ")
         }
 
         link.append("\(title)</a></li>")

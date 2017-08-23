@@ -1,8 +1,6 @@
-#sidebar:container("Backend", "/admin/backend/users*", "server") {
-    #sidebar:link("Users", "/admin/backend/users", "user", "/admin/backend/users*")
+#gate:allow(request.storage.auth-authenticated.role, "Admin") {
+    #sidebar:header("Admin")
+    #sidebar:container("Backend", "/admin/backend/users*", "fa fa-server") {
+        #sidebar:link("Users", "/admin/backend/users", "fa fa-user", "/admin/backend/users*")
+    }
 }
-
-
-
-
-

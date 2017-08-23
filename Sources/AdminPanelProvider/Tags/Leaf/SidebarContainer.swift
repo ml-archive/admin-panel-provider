@@ -24,7 +24,7 @@ public final class SidebarContainer: Tag {
         var link = "<li class=\"treeview\(isActive ? " active menu-open" : "")\"><a href=\"#\">"
 
         if let icon = arguments[2]?.string {
-            link.append("<i class=\"fa fa-\(icon)\"></i> ")
+            link.append("<i class=\"\(icon)\"></i> ")
         }
 
         link.append("<span>\(title)</span><span class=\"pull-right-container\"><i class=\"fa fa-angle-left pull-right\"></i></span></a><ul class=\"treeview-menu\">")

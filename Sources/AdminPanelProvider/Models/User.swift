@@ -5,12 +5,6 @@ import AuthProvider
 import FluentProvider
 
 public final class BackendUser: Model {
-    public static let roles = [
-        "Super Admin",
-        "Admin",
-        "User"
-    ]
-
     public let storage = Storage()
 
     public var name: String

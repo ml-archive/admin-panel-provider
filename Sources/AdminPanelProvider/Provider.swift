@@ -169,6 +169,7 @@ extension Provider {
         stem.register(SidebarLink())
         stem.register(SidebarContainer())
         stem.register(ImageRound())
+        stem.register(GateAllow())
     }
 
     public func setupStencilRenderer(_ renderer: StencilRenderer) {

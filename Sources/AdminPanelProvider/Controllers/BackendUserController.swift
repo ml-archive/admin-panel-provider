@@ -26,6 +26,8 @@ public final class BackendUserController {
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let superAdmins = try BackendUser.makeQuery().filter("role", "Super Admin").all()
         let admins = try BackendUser.makeQuery().filter("role", "Admin").all()
         let users = try BackendUser.makeQuery().filter("role", "User").all()
@@ -42,11 +44,16 @@ public final class BackendUserController {
     }
 
     public func create(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let fieldset = try req.storage["_fieldset"] as? Node ??  BackendUserForm().makeNode(in: nil)
-        return try renderer.make("BackendUser/edit", ["roles": BackendUser.roles, "fieldset": fieldset], for: req)
+        return try renderer.make("BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
+
         do {
             let (form, hasErrors) = BackendUserForm.validating(req.data)
             if hasErrors {
@@ -114,11 +121,21 @@ public final class BackendUserController {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+
+        guard allowed else {
+            throw Abort.notFound
+        }
+
         let fieldset = try req.storage["_fieldset"] as? Node ??  BackendUserForm().makeNode(in: nil)
-        return try renderer.make("BackendUser/edit", ["user": user, "roles": BackendUser.roles,"fieldset": fieldset], for: req)
+        return try renderer.make("BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
+
         do {
             var user: BackendUser
             do {
@@ -140,7 +157,15 @@ public final class BackendUserController {
             user.title = form.title
             user.email = form.email
             user.password = try BCryptHasher().make(form.password.makeBytes()).makeString()
-            user.role = form.role
+
+            // Users aren't allowed to change their own role
+            if requestingUser.id != user.id {
+                // is the requesting user allowed to select this role?
+                if Gate.allow(requestingUser.role, requiredRole: form.role) {
+                    user.role = form.role
+                }
+            }
+
             user.shouldResetPassword = form.shouldResetPassword
 
             if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
@@ -163,6 +188,9 @@ public final class BackendUserController {
     }
 
     public func delete(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
+
         let user: BackendUser
         do {
             user = try req.parameters.next(BackendUser.self)
@@ -170,8 +198,7 @@ public final class BackendUserController {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        let requestingUser = req.auth.authenticated(BackendUser.self)
-        guard user.id != requestingUser?.id else {
+        guard user.id != requestingUser.id else {
             return redirect("/admin/backend/users").flash(.error, "Cannot delete yourself")
         }
 
@@ -181,6 +208,9 @@ public final class BackendUserController {
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
+        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
+
         let user: BackendUser
         do {
             let id = try req.parameters.next(Int.self)

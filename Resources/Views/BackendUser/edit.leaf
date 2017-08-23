@@ -113,7 +113,23 @@ $(function() {
                 #form:textgroup(fieldset.title, user.title, "", "required")
                 #form:emailgroup(fieldset.email, user.email, "", "required")
 
-                #form:selectgroup(roles, fieldset.role, user.role) 
+                #equal(user.id, request.storage.auth-authenticated.id) {
+                } ##else() {
+                    <div class="form-group ">
+                        <label class="control-label" for="role">Role</label>
+                        <select class="form-control User" id="role" name="role">
+                            #gate:allow(request.storage.auth-authenticated.role, "Super Admin") {
+                            <option value="Super Admin" #equal(user.role, "Super Admin"){ selected }>Super Admin</option>
+                            }
+
+                            #gate:allow(request.storage.auth-authenticated.role, "Admin") {
+                            <option value="Admin" #equal(user.role, "Admin") { selected }>Admin</option>
+                            }
+
+                            <option value="User" #equal(user.role, "User") { selected }>User</option>
+                        </select>
+                    </div>
+                }   
 
                 #if(request.storage.adminPanel.isEmailEnabled) {
                     #if(user) {
