@@ -25,7 +25,7 @@ extension SSO {
     public func auth(req: Request) throws -> Response {
         // skip SSO on local environments
         if isLocalEnvironment || req.uri.hostname.isLocalhost {
-            guard let user = try BackendUser.makeQuery().first() else {
+            guard let user = try User.makeQuery().first() else {
                 throw Abort(.internalServerError, reason: "No backend users exist. Try running `admin-panel:seeder`")
             }
 
@@ -52,11 +52,11 @@ extension SSO {
             return redirect("/admin/login").flash(.error, "Token did not match. Try again")
         }
 
-        let user: BackendUser
-        if let existing = try BackendUser.makeQuery().filter("email", email).first() {
+        let user: User
+        if let existing = try User.makeQuery().filter("email", email).first() {
             user = existing
         } else {
-            user = try BackendUser(
+            user = try User(
                 name: "Admin",
                 title: "Nodes Admin",
                 email: email,

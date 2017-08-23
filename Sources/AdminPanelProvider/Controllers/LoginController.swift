@@ -26,7 +26,7 @@ public final class LoginController {
             }
 
             let credentials = Password(username: username, password: password)
-            let user = try BackendUser.authenticate(credentials)
+            let user = try User.authenticate(credentials)
             req.auth.authenticate(user)
 
             var redir = "/admin/dashboard"
@@ -61,7 +61,7 @@ public final class LoginController {
         do {
             guard
                 let email = req.data["email"]?.string,
-                let user = try BackendUser.makeQuery().filter("email", email).first()
+                let user = try User.makeQuery().filter("email", email).first()
             else {
                 return redirect("/admin/login").flash(.success, "E-mail with instructions sent if user exists")
             }
@@ -133,7 +133,7 @@ public final class LoginController {
             return redirect("/admin/login/reset/" + tokenParam).flash(.error, "Passwords do not match")
         }
 
-        guard let user = try BackendUser.makeQuery().filter("email", email).first() else {
+        guard let user = try User.makeQuery().filter("email", email).first() else {
             return redirect("/admin/login").flash(.error, "User not found")
         }
 

@@ -4,7 +4,7 @@ import Flash
 import Vapor
 import Storage
 
-public final class BackendUserController {
+public final class UserController {
     public let renderer: ViewRenderer
     public let env: Environment
     public let mailgun: Mailgun?
@@ -26,11 +26,11 @@ public final class BackendUserController {
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let superAdmins = try BackendUser.makeQuery().filter("role", "Super Admin").all()
-        let admins = try BackendUser.makeQuery().filter("role", "Admin").all()
-        let users = try BackendUser.makeQuery().filter("role", "User").all()
+        let superAdmins = try User.makeQuery().filter("role", "Super Admin").all()
+        let admins = try User.makeQuery().filter("role", "Admin").all()
+        let users = try User.makeQuery().filter("role", "User").all()
 
         return try renderer.make(
             "BackendUser/index",
@@ -44,18 +44,18 @@ public final class BackendUserController {
     }
 
     public func create(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.storage["_fieldset"] as? Node ??  BackendUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
         return try renderer.make("BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            let (form, hasErrors) = BackendUserForm.validating(req.data)
+            let (form, hasErrors) = UserForm.validating(req.data)
             if hasErrors {
                 let response = redirect("/admin/backend/users/create").flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
@@ -69,7 +69,7 @@ public final class BackendUserController {
                 avatar = path
             }
 
-            let user = try BackendUser(
+            let user = try User(
                 name: form.name,
                 title: form.title,
                 email: form.email,
@@ -114,37 +114,37 @@ public final class BackendUserController {
     }
 
     public func edit(req: Request) throws -> ResponseRepresentable {
-        let user: BackendUser
+        let user: User
         do {
-            user = try req.parameters.next(BackendUser.self)
+            user = try req.parameters.next(User.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
         guard allowed else {
             throw Abort.notFound
         }
 
-        let fieldset = try req.storage["_fieldset"] as? Node ??  BackendUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
         return try renderer.make("BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            var user: BackendUser
+            var user: User
             do {
-                user = try req.parameters.next(BackendUser.self)
+                user = try req.parameters.next(User.self)
             } catch {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
-            let (form, hasErrors) = BackendUserForm.validating(req.data)
+            let (form, hasErrors) = UserForm.validating(req.data)
             if hasErrors {
                 // TODO: redirect back to where user came from
                 let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Validation error")
@@ -188,12 +188,12 @@ public final class BackendUserController {
     }
 
     public func delete(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: BackendUser
+        let user: User
         do {
-            user = try req.parameters.next(BackendUser.self)
+            user = try req.parameters.next(User.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
@@ -208,13 +208,13 @@ public final class BackendUserController {
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(BackendUser.self)
+        let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: BackendUser
+        let user: User
         do {
             let id = try req.parameters.next(Int.self)
-            guard let u = try BackendUser.makeQuery().filter("id", id).withSoftDeleted().first() else {
+            guard let u = try User.makeQuery().filter("id", id).withSoftDeleted().first() else {
                 throw Abort.notFound
             }
 

@@ -17,7 +17,7 @@ public final class Seeder: Command, ConfigInitializable {
     public func run(arguments: [String]) throws {
         console.info("Started the seeder")
 
-        let user = try BackendUser(
+        let user = try User(
             name: "Admin",
             title: "Default admin account",
             email: "admin@admin.com",

@@ -4,7 +4,7 @@ import Storage
 import AuthProvider
 import FluentProvider
 
-public final class BackendUser: Model {
+public final class User: Model {
     public let storage = Storage()
 
     public var name: String
@@ -62,14 +62,14 @@ public final class BackendUser: Model {
     }
 }
 
-extension BackendUser {
+extension User {
     public func updatePassword(_ newPass: String) throws {
         password = try BCryptHasher().make(newPass.makeBytes()).makeString()
         try save()
     }
 }
 
-extension BackendUser: ViewDataRepresentable {
+extension User: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
             "id": .number(.int(id?.int ?? 0)),
@@ -82,7 +82,7 @@ extension BackendUser: ViewDataRepresentable {
     }
 }
 
-extension BackendUser: NodeRepresentable {
+extension User: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         return try Node([
             "id": Node.number(.int(id?.int ?? 0)),
@@ -95,10 +95,10 @@ extension BackendUser: NodeRepresentable {
     }
 }
 
-extension BackendUser: Timestampable {}
-extension BackendUser: SoftDeletable {}
-extension BackendUser: SessionPersistable {}
-extension BackendUser: Preparation {
+extension User: Timestampable {}
+extension User: SoftDeletable {}
+extension User: SessionPersistable {}
+extension User: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
             $0.id()
@@ -116,10 +116,10 @@ extension BackendUser: Preparation {
         try database.delete(self)
     }
 }
-extension BackendUser: PasswordAuthenticatable {
-    public static func authenticate(_ credentials: Password) throws -> BackendUser {
+extension User: PasswordAuthenticatable {
+    public static func authenticate(_ credentials: Password) throws -> User {
         guard
-            let user = try BackendUser.makeQuery().filter("email", credentials.username).first(),
+            let user = try User.makeQuery().filter("email", credentials.username).first(),
             try BCryptHasher().check(credentials.password, matchesHash: user.password)
         else {
             throw Abort.unauthorized

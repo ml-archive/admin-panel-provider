@@ -73,16 +73,16 @@ public final class Provider: Vapor.Provider {
 
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
-        Middlewares.unsecured.append(PersistMiddleware(BackendUser.self))
+        Middlewares.unsecured.append(PersistMiddleware(User.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
         Middlewares.unsecured.append(ActionMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
         Middlewares.secured.append(RedirectMiddleware(path: "/admin/login"))
-        Middlewares.secured.append(PasswordAuthenticationMiddleware(BackendUser.self))
+        Middlewares.secured.append(PasswordAuthenticationMiddleware(User.self))
 
-        config.preparations.append(BackendUser.self)
+        config.preparations.append(User.self)
         config.preparations.append(UserResetToken.self)
         config.preparations.append(Action.self)
 
@@ -128,7 +128,7 @@ public final class Provider: Vapor.Provider {
         )
         try droplet.collection(panelRoutes)
 
-        let bUserRoutes = BackendUserRoutes(
+        let bUserRoutes = UserRoutes(
             renderer: renderer,
             env: droplet.config.environment,
             mailgun: mailgun,

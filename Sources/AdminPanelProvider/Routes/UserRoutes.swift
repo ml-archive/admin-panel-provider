@@ -1,8 +1,8 @@
 import HTTP
 import Vapor
 
-public final class BackendUserRoutes: RouteCollection {
-    public let controller: BackendUserController
+public final class UserRoutes: RouteCollection {
+    public let controller: UserController
 
     public init(
         renderer: ViewRenderer,
@@ -11,7 +11,7 @@ public final class BackendUserRoutes: RouteCollection {
         isEmailEnabled: Bool,
         isStorageEnabled: Bool
     ) {
-        controller = BackendUserController(
+        controller = UserController(
             renderer: renderer,
             env: env,
             mailgun: mailgun,
@@ -28,10 +28,10 @@ public final class BackendUserRoutes: RouteCollection {
         admin.get("backend/users/create", handler: controller.create)
         admin.post("backend/users/store", handler: controller.store)
 
-        admin.get("backend/users/", BackendUser.parameter, "edit", handler: controller.edit)
-        admin.post("backend/users/", BackendUser.parameter, "edit", handler: controller.update)
+        admin.get("backend/users/", User.parameter, "edit", handler: controller.edit)
+        admin.post("backend/users/", User.parameter, "edit", handler: controller.update)
 
-        admin.get("backend/users/", BackendUser.parameter, "delete", handler: controller.delete)
+        admin.get("backend/users/", User.parameter, "delete", handler: controller.delete)
         admin.get("backend/users/", Int.parameter, "restore", handler: controller.restore)
 
         admin.get("backend/users/logout", handler: controller.logout)
