@@ -54,7 +54,7 @@ public struct UserForm {
 }
 
 extension UserForm {
-    public static func validating(_ data: Content) -> (UserForm, Bool) {
+    public static func validating(_ data: Content, ignoreRole: Bool = false) -> (UserForm, Bool) {
         let name = data["name"]?.string
         let email = data["email"]?.string
         let title = data["title"]?.string
@@ -72,7 +72,8 @@ extension UserForm {
             shouldResetPassword: shouldResetPassword,
             sendEmail: sendEmail,
             password: password,
-            passwordRepeat: passwordRepeat
+            passwordRepeat: passwordRepeat,
+            ignoreRole: ignoreRole
         )
     }
 
@@ -84,8 +85,9 @@ extension UserForm {
         shouldResetPassword: Bool?,
         sendEmail: Bool?,
         password: String?,
-        passwordRepeat: String?
-        ) -> (UserForm, Bool) {
+        passwordRepeat: String?,
+        ignoreRole: Bool
+    ) -> (UserForm, Bool) {
         var shouldResetPassword = shouldResetPassword
         var password = password
         var hasErrors = false
@@ -113,7 +115,7 @@ extension UserForm {
             hasErrors = true
         }
 
-        if role == nil {
+        if role == nil && !ignoreRole {
             roleErrors.append(requiredFieldError)
             hasErrors = true
         }

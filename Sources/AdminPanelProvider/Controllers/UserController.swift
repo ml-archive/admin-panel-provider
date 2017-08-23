@@ -144,9 +144,9 @@ public final class UserController {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
-            let (form, hasErrors) = UserForm.validating(req.data)
+            // users already have a role, so we don't care if they don't/can't update it
+            let (form, hasErrors) = UserForm.validating(req.data, ignoreRole: true)
             if hasErrors {
-                // TODO: redirect back to where user came from
                 let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
                 response.storage["_fieldset"] = fieldset
@@ -156,7 +156,20 @@ public final class UserController {
             user.name = form.name
             user.title = form.title
             user.email = form.email
-            user.password = try BCryptHasher().make(form.password.makeBytes()).makeString()
+
+            let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
+            if user.shouldResetPassword {
+                guard formPasswordHash != user.password else {
+                    let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Please pick a new password")
+                    let fieldset = try form.makeNode(in: nil)
+                    response.storage["_fieldset"] = fieldset
+                    return response
+                }
+
+                user.shouldResetPassword = false
+            }
+
+            user.password = formPasswordHash
 
             // Users aren't allowed to change their own role
             if requestingUser.id != user.id {

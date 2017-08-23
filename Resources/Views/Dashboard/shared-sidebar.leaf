@@ -1,3 +1,6 @@
+#sidebar:header("Main navigation")
+#sidebar:link("Dashboard", "/admin/dashboard", "fa fa-dashboard")
+
 #gate:allow(request.storage.auth-authenticated.role, "Admin") {
     #sidebar:header("Admin")
     #sidebar:container("Backend", "/admin/backend/users*", "fa fa-server") {

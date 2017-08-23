@@ -79,7 +79,7 @@ public final class Provider: Vapor.Provider {
         Middlewares.unsecured.append(ActionMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
-        Middlewares.secured.append(RedirectMiddleware(path: "/admin/login"))
+        Middlewares.secured.append(ProtectMiddleware(path: "/admin/login"))
         Middlewares.secured.append(PasswordAuthenticationMiddleware(User.self))
 
         config.preparations.append(User.self)
