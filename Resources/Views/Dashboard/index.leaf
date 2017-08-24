@@ -101,28 +101,14 @@
         <div class="col-sm-12">
             #box:open("Orders", "warning")
             #box:body() {
-                <table class="table table-hover">
-                    <tbody>
-                        <tr>
-                            <th>ID</th>
-                            <th>Item</th>
-                            <th>Status</th>
-                        </tr>
-                        <tr>
-                            <td>OR9842</td>
-                            <td>Call of Duty IV</td>
-                            <td><span class="label label-success">Shipped</span></td>
-                        </tr>
-                        <tr>
-                            <td>OR1848</td>
-                            <td>Samsung Smart TV</td>
-                            <td><span class="label label-warning">Pending</span></td>
-                        </tr>
-
-                    </tbody>
-                </table>
+                #table("ID", "Item", "Status") {
+                    #table:rows(orders, "row") {
+                        <td>#(row.id)</td>
+                        <td>#(row.title)</td>
+                        <td>#label(row.status.value, row.status.type)</td>
+                    }
+                }
             }
-
             #box:footer() {
                 <a href="#" class="btn btn-sm btn-default btn-flag pull-right">View All Orders</a>
             }

@@ -169,7 +169,9 @@ public final class UserController {
                 user.shouldResetPassword = false
             }
 
-            user.password = formPasswordHash
+            if !form.password.isEmpty {
+                user.password = formPasswordHash
+            }
 
             // Users aren't allowed to change their own role
             if requestingUser.id != user.id {
@@ -178,8 +180,6 @@ public final class UserController {
                     user.role = form.role
                 }
             }
-
-            user.shouldResetPassword = form.shouldResetPassword
 
             if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
                 let path = try Storage.upload(dataURI: profileImage, folder: "profile")

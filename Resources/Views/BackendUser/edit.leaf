@@ -157,7 +157,7 @@ $(function() {
                 <h4 class="margin-top">
                     Choose password
                     <br>
-                    <small>(leave empty for random password with a forced reset) (min. 8 characters)</small>
+                    <small>#if(user){} ##else() {(leave empty for random password with a forced reset) }(min. 8 characters)</small>
                 </h4>
 
                 #form:passwordgroup(fieldset.password, nil)

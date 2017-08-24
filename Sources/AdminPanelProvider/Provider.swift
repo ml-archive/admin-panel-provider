@@ -169,6 +169,9 @@ extension Provider {
         stem.register(SidebarLink())
         stem.register(SidebarContainer())
         stem.register(ImageRound())
+        stem.register(Label())
+        stem.register(Table())
+        stem.register(TableRows())
         stem.register(GateAllow())
     }
 

@@ -1,4 +1,5 @@
 import Vapor
+import Cookies
 import AuthProvider
 
 public final class LoginController {
@@ -27,7 +28,18 @@ public final class LoginController {
 
             let credentials = Password(username: username, password: password)
             let user = try User.authenticate(credentials)
-            req.auth.authenticate(user)
+
+            let shouldPersist = req.data["rememberMe"] != nil
+            try req.auth.authenticate(user, persist: shouldPersist)
+            if shouldPersist {
+//                req.cookies.insert(
+//                    Cookie.init(
+//                        name: "rememberMe",
+//                        value: <#T##String#>,
+//                        expires: Date().addingTimeInterval(5_184_000)
+//                    )
+//                )
+            }
 
             var redir = "/admin/dashboard"
             if let next = req.query?["next"]?.string, !next.isEmpty {
@@ -143,6 +155,35 @@ public final class LoginController {
     }
 
     public func dashboard(req: Request) throws -> ResponseRepresentable {
-        return try renderer.make("Dashboard/index", for: req)
+        let ordersData: [Node] = [
+            Node([
+                "id": "OR9842",
+                "title": "Call of Duty IV",
+                "status": Node(["value": "Shipped", "type": "success"])
+            ]),
+            Node([
+                "id": "OR9842",
+                "title": "Call of Duty IV",
+                "status": Node(["value": "Shipped", "type": "success"])
+            ]),
+            Node([
+                "id": "OR1848",
+                "title": "Samsung Smart TV",
+                "status": Node(["value": "Pending", "type": "warning"])
+            ]),
+            Node([
+                "id": "OR9842",
+                "title": "Call of Duty IV",
+                "status": Node(["value": "Cancelled", "type": "danger"])
+            ]),
+            Node([
+                "id": "OR9842",
+                "title": "Call of Duty IV",
+                "status": Node(["value": "Shipped", "type": "success"])
+            ])
+        ]
+
+        let orders = Node(ordersData)
+        return try renderer.make("Dashboard/index", ["orders": orders], for: req)
     }
 }
