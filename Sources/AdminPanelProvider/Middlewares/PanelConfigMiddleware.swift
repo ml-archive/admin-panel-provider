@@ -1,6 +1,31 @@
 import Vapor
 
-public final class PanelConfigMiddleware: Middleware {
+public struct PanelConfig {
+    public let panelName: String
+    public let baseUrl: String
+    public let skin: Skin
+
+    public let isEmailEnabled: Bool
+    public let fromEmail: String?
+
+    public let isStorageEnabled: Bool
+
+    public init(
+        panelName: String,
+        baseUrl: String,
+        skin: Skin,
+        isEmailEnabled: Bool,
+        isStorageEnabled: Bool,
+        fromEmail: String?
+    ) {
+        self.panelName = panelName
+        self.baseUrl = baseUrl
+        self.skin = skin
+        self.isEmailEnabled = isEmailEnabled
+        self.isStorageEnabled = isStorageEnabled
+        self.fromEmail = fromEmail
+    }
+
     public enum Skin: String {
         case blue
         case blueLight = "blue-light"
@@ -19,13 +44,17 @@ public final class PanelConfigMiddleware: Middleware {
             return "skin-\(self.rawValue)"
         }
     }
+}
 
+public final class PanelConfigMiddleware: Middleware {
     public var config: Node
 
-    init(panelName: String, skin: Skin) throws {
-        config = try Node(node: [
-            "name": panelName,
-            "skin": skin.cssClass
+    init(_ config: PanelConfig) throws {
+        self.config = try Node(node: [
+            "name": config.panelName,
+            "skin": config.skin.cssClass,
+            "isEmailEnabled": config.isEmailEnabled,
+            "isStorageEnabled": config.isStorageEnabled
         ])
     }
 

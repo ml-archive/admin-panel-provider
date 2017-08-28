@@ -1,6 +1,6 @@
 import Vapor
 
-public struct BackendUserForm {
+public struct UserForm {
     public let name: String
     public let nameErrors: [String]
     public let email: String
@@ -53,8 +53,8 @@ public struct BackendUserForm {
     }
 }
 
-extension BackendUserForm {
-    public static func validating(_ data: Content) -> (BackendUserForm, Bool) {
+extension UserForm {
+    public static func validating(_ data: Content, ignoreRole: Bool = false) -> (UserForm, Bool) {
         let name = data["name"]?.string
         let email = data["email"]?.string
         let title = data["title"]?.string
@@ -72,7 +72,8 @@ extension BackendUserForm {
             shouldResetPassword: shouldResetPassword,
             sendEmail: sendEmail,
             password: password,
-            passwordRepeat: passwordRepeat
+            passwordRepeat: passwordRepeat,
+            ignoreRole: ignoreRole
         )
     }
 
@@ -84,8 +85,9 @@ extension BackendUserForm {
         shouldResetPassword: Bool?,
         sendEmail: Bool?,
         password: String?,
-        passwordRepeat: String?
-        ) -> (BackendUserForm, Bool) {
+        passwordRepeat: String?,
+        ignoreRole: Bool
+    ) -> (UserForm, Bool) {
         var shouldResetPassword = shouldResetPassword
         var password = password
         var hasErrors = false
@@ -113,7 +115,7 @@ extension BackendUserForm {
             hasErrors = true
         }
 
-        if role == nil {
+        if role == nil && !ignoreRole {
             roleErrors.append(requiredFieldError)
             hasErrors = true
         }
@@ -137,7 +139,7 @@ extension BackendUserForm {
 
         let hasRandomPassword = (password?.isEmpty ?? true) && (passwordRepeat?.isEmpty ?? true)
         if hasRandomPassword {
-            password = "Hello, world!"
+            password = String.random(12)
             shouldResetPassword = true
         } else {
             if let password = password {
@@ -164,7 +166,7 @@ extension BackendUserForm {
         }
 
         return (
-            BackendUserForm(
+            UserForm(
                 name: name,
                 nameErrors: nameErrors,
                 email: email,
@@ -186,7 +188,7 @@ extension BackendUserForm {
     }
 }
 
-extension BackendUserForm: NodeRepresentable {
+extension UserForm: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         let nameObj = try Node(node: [
             "label": "Name",

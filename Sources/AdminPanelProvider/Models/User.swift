@@ -1,15 +1,12 @@
 import Vapor
 import BCrypt
+import Storage
+import AuthProvider
 import FluentProvider
 
-public final class BackendUser: Model {
-    public static let roles = [
-        "Super Admin",
-        "Admin",
-        "User"
-    ]
-
+public final class User: Model {
     public let storage = Storage()
+    public static let name = "adminPanelUser"
 
     public var name: String
     public var title: String
@@ -66,22 +63,43 @@ public final class BackendUser: Model {
     }
 }
 
-extension BackendUser: ViewDataRepresentable {
+extension User {
+    public func updatePassword(_ newPass: String) throws {
+        password = try BCryptHasher().make(newPass.makeBytes()).makeString()
+        try save()
+    }
+}
+
+extension User: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
-        return ViewData(viewData: [
+        return try ViewData(viewData: [
             "id": .number(.int(id?.int ?? 0)),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
             "role": .string(role),
-            "avatarUrl": .string(avatarUrl)
+            "avatarUrl": .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
 }
 
-extension BackendUser: Timestampable {}
-extension BackendUser: SoftDeletable {}
-extension BackendUser: Preparation {
+extension User: NodeRepresentable {
+    public func makeNode(in context: Context?) throws -> Node {
+        return try Node([
+            "id": Node.number(.int(id?.int ?? 0)),
+            "name": .string(name),
+            "title": .string(title),
+            "email": .string(email),
+            "role": .string(role),
+            "avatarUrl":  .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
+        ])
+    }
+}
+
+extension User: Timestampable {}
+extension User: SoftDeletable {}
+extension User: SessionPersistable {}
+extension User: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
             $0.id()
@@ -97,5 +115,17 @@ extension BackendUser: Preparation {
 
     public static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+extension User: PasswordAuthenticatable {
+    public static func authenticate(_ credentials: Password) throws -> User {
+        guard
+            let user = try User.makeQuery().filter("email", credentials.username).first(),
+            try BCryptHasher().check(credentials.password, matchesHash: user.password)
+        else {
+            throw Abort.unauthorized
+        }
+
+        return user
     }
 }

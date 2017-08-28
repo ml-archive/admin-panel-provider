@@ -1,10 +1,14 @@
 <header class="main-header">
   <a href="/admin/dashboard" class="logo">
     <!-- LOGO -->
-    #(request.storage.adminPanel.name)
+    <span class="logo-mini"><i class="icon fa fa-bar-chart"></i></span>
+    <span class="logo-lg">#(request.storage.adminPanel.name)</span>
   </a>
   <!-- Header Navbar: style can be found in header.less -->
   <nav class="navbar navbar-static-top" role="navigation">
     <!-- Navbar Right Menu -->
-    <div class="navbar-custom-menu">
-      <ul class="nav navbar-nav">
+  <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+     <span class="sr-only">Toggle navigation</span>
+  </a>
+  <div class="navbar-custom-menu">
+     <ul class="nav navbar-nav">

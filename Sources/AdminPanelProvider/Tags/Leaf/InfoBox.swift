@@ -25,7 +25,7 @@ public final class InfoBox: BasicTag {
             "<div class=\"info-box\">"
         ]
 
-        infobox.append("<span class=\"info-box-icon bg-\(colour)\"><i class=\"fa fa-\(icon)\"></i></span>")
+        infobox.append("<span class=\"info-box-icon bg-\(colour)\"><i class=\"\(icon)\"></i></span>")
         infobox.append("<div class=\"info-box-content\">")
         infobox.append("<span class=\"info-box-text\">\(title)</span>")
         infobox.append("<span class=\"info-box-number\">\(number)</span>")

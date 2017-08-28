@@ -66,7 +66,7 @@ extension Action: Preparation {
 }
 
 extension Action {
-    public static func report(_ user: BackendUser, _ message: String) {
+    public static func report(_ user: User, _ message: String) {
         do {
             let action = Action(name: user.name, userId: user.id?.int ?? 0, message: message)
             try action.save()
