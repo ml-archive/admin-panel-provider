@@ -11,7 +11,7 @@
 Admin Panel makes it easy to setup and maintain admin features for your Vapor project. Here's a list of some of the top feautures that comes out of the box with this package:
 
 - **UI Components:** Admin Panel is built using [AdminLTE](https://adminlte.io/), a highly battle-tested and maintained Control Panel Template. This means that you'll have access to features from AdminLTE through [Leaf](https://docs.vapor.codes/2.0/leaf/leaf/#leaf) tags.
-- **User System:** This package come with a (admin panel) user system with customizable roles built-in. The package also handles welcome emails and reset-password flows.
+- **User System:** This package come with a (admin panel) user system with roles built-in. The package also handles welcome emails and reset-password flows.
 - **SSO Support:** Built-in support for adding your own custom SSO provider.
 - **Activities**: Need to broadcast certain updates to the admin panel users? No problem, Admin Panel gives you some convenient functionality to manage an activity log.
 
