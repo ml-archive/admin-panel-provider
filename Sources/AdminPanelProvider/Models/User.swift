@@ -17,7 +17,7 @@ public final class User: Model {
     public var avatar: String?
 
     public var avatarUrl: String {
-        return avatar ?? "http://dummyimage.com/250x250"
+        return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
     }
 
     public init(
@@ -129,3 +129,4 @@ extension User: PasswordAuthenticatable {
         return user
     }
 }
+
