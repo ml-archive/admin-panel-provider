@@ -14,8 +14,5 @@ let package = Package(
         .Package(url: "https://github.com/nodes-vapor/slugify.git", majorVersion: 1),
 		.Package(url: "https://github.com/nodes-vapor/storage", majorVersion: 0, minor: 4),
         .Package(url: "https://github.com/nodes-vapor/paginator.git", majorVersion: 1),
-
-        // Brett
-        .Package(url: "https://github.com/BrettRToomey/stencil-provider.git", majorVersion: 0),
     ]
 )

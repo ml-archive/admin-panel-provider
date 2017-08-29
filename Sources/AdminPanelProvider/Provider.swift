@@ -1,11 +1,10 @@
 import Flash
 import Vapor
-import Stencil
 import Storage
 import Sessions
 import AuthProvider
 import LeafProvider
-import StencilProvider
+import Leaf
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
@@ -91,9 +90,7 @@ public final class Provider: Vapor.Provider {
 
     public func boot(_ droplet: Droplet) throws {
         if let leaf = droplet.view as? LeafRenderer {
-            setupLeafRenderer(leaf)
-        } else if let stencil = droplet.view as? StencilRenderer {
-            setupStencilRenderer(stencil)
+            registerLeafTags(leaf)
         }
 
         let renderer = droplet.view
@@ -143,7 +140,7 @@ public final class Provider: Vapor.Provider {
 }
 
 extension Provider {
-    public func setupLeafRenderer(_ renderer: LeafRenderer) {
+    public func registerLeafTags(_ renderer: LeafRenderer) {
         let stem = renderer.stem
         stem.register(IfNotEmpty())
         stem.register(FormOpen())
@@ -173,9 +170,5 @@ extension Provider {
         stem.register(Table())
         stem.register(TableRows())
         stem.register(GateAllow())
-    }
-
-    public func setupStencilRenderer(_ renderer: StencilRenderer) {
-        
     }
 }
