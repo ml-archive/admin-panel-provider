@@ -10,8 +10,6 @@
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="/dist/css/AdminLTE.min.css">
-  <!-- iCheck -->
-  <link rel="stylesheet" href="/plugins/iCheck/square/blue.css">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -69,19 +67,16 @@
     box-shadow: 0 14px 20px rgba(0, 0, 0, 0.3)
 }
 
-.icheckbox_square-blue {
-    margin-right: 4px;
-}
 </style>
 <div class="login-box">
   <div class="login-logo">
-      <a href="#()"><b>#(request.storage.adminPanel.name)</b></a>
+      <b>#(request.storage.adminPanel.name)</b>
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-      <a href="/admin/login/sso" id="alternative-login" class="sso"><span class="sr-only">Nodes SSO</span></a>
     <p class="login-box-msg">Update your password</p>
     #embed("Layout/Partials/alerts")
+    
     <form method="POST" action="/admin/login/reset/change">
       <input type="hidden" name="token" value="#(token)">
 	  <div class="form-group has-feedback">
@@ -119,16 +114,6 @@
 <script src="/plugins/jQuery/jquery-2.2.3.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="/bootstrap/js/bootstrap.min.js"></script>
-<!-- iCheck -->
-<script src="/plugins/iCheck/icheck.min.js"></script>
-<script>
-  $(function () {
-    $('input').iCheck({
-      checkboxClass: 'icheckbox_square-blue',
-      radioClass: 'iradio_square-blue',
-      increaseArea: '20%' // optional
-    });
-  });
-</script>
+
 </body>
 </html>
