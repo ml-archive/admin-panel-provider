@@ -102,11 +102,13 @@ public final class Provider: Vapor.Provider {
             mailgun = nil
         }
 
-        let loginCollection = LoginRoutes(
+        let loginController = LoginController(
             renderer: renderer,
             mailgun: mailgun,
             panelConfig: config
         )
+
+        let loginCollection = LoginRoutes(controller: loginController)
         try droplet.collection(loginCollection)
 
         let panelRoutes = PanelRoutes(

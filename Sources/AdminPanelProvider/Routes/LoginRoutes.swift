@@ -5,16 +5,8 @@ import AuthProvider
 public final class LoginRoutes: RouteCollection {
     public let controller: LoginController
 
-    public init(
-        renderer: ViewRenderer,
-        mailgun: Mailgun?,
-        panelConfig: PanelConfig
-    ) {
-        controller = LoginController(
-            renderer: renderer,
-            mailgun: mailgun,
-            panelConfig: panelConfig
-        )
+    public init(controller: LoginController) {
+        self.controller = controller
     }
 
     public func build(_ builder: RouteBuilder) throws {
