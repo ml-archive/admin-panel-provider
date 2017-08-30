@@ -95,14 +95,6 @@ public final class Provider: Vapor.Provider {
 
         let renderer = droplet.view
 
-        let ssoController: SSO?
-        if droplet.config["sso"] != nil {
-            ssoController = try SSO(config: droplet.config)
-        } else {
-            print("WARNING: couldn't find `sso.json`. SSO will be disabled")
-            ssoController = nil
-        }
-
         let mailgun: Mailgun?
         if config.isEmailEnabled {
             mailgun = try Mailgun(config: droplet.config)
@@ -112,7 +104,6 @@ public final class Provider: Vapor.Provider {
 
         let loginCollection = LoginRoutes(
             renderer: renderer,
-            ssoController: ssoController,
             mailgun: mailgun,
             panelConfig: config
         )

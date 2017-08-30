@@ -54,7 +54,8 @@ public final class PanelConfigMiddleware: Middleware {
             "name": config.panelName,
             "skin": config.skin.cssClass,
             "isEmailEnabled": config.isEmailEnabled,
-            "isStorageEnabled": config.isStorageEnabled
+            "isStorageEnabled": config.isStorageEnabled,
+            "sso": Node([:])
         ])
     }
 
