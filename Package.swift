@@ -12,7 +12,7 @@ let package = Package(
         // Nodes
         .Package(url: "https://github.com/nodes-vapor/flash.git", majorVersion: 1),
         .Package(url: "https://github.com/nodes-vapor/slugify.git", majorVersion: 1),
-		.Package(url: "https://github.com/nodes-vapor/storage", majorVersion: 0, minor: 4),
+        .Package(url: "https://github.com/nodes-vapor/storage", majorVersion: 0),
         .Package(url: "https://github.com/nodes-vapor/paginator.git", majorVersion: 1),
     ]
 )
