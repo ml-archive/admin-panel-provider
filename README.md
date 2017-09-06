@@ -67,7 +67,18 @@ After adding the provider, please make sure that your project is using Leaf as t
 
 ### Seed a user
 
-If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, simply run the following command:
+If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, first add the seeder command to your `commands` array in your `droplet.json`:
+
+```json
+"//": "Choose which commands this application can run",
+"//": "prepare: Supplied by the Fluent provider. Prepares the database (configure in fluent.json)",
+"commands": [
+    "prepare",
+    "admin-panel:seeder"
+],
+```
+
+Next run the seeder by doing:
 
 ```
 vapor build; vapor run admin-panel:seeder
