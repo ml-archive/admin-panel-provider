@@ -33,7 +33,7 @@ public final class UserController {
         let users = try User.makeQuery().filter("role", "User").all()
 
         return try renderer.make(
-            "BackendUser/index",
+            "BackendUsers/index",
             [
                 "superAdmins": superAdmins,
                 "admins": admins,
@@ -47,7 +47,7 @@ public final class UserController {
         let requestingUser = try req.auth.assertAuthenticated(User.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
-        return try renderer.make("BackendUser/edit", ["fieldset": fieldset], for: req)
+        return try renderer.make("BackendUsers/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
@@ -129,7 +129,7 @@ public final class UserController {
         }
 
         let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
-        return try renderer.make("BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
+        return try renderer.make("BackendUsers/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
