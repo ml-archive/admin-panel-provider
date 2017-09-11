@@ -4,9 +4,8 @@ import Storage
 import AuthProvider
 import FluentProvider
 
-public final class User: Model {
+public final class AdminPanelUser: Model {
     public let storage = Storage()
-    public static let name = "adminPanelUser"
 
     public var name: String
     public var title: String
@@ -63,14 +62,14 @@ public final class User: Model {
     }
 }
 
-extension User {
+extension AdminPanelUser {
     public func updatePassword(_ newPass: String) throws {
         password = try BCryptHasher().make(newPass.makeBytes()).makeString()
         try save()
     }
 }
 
-extension User: ViewDataRepresentable {
+extension AdminPanelUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
             "id": .number(.int(id?.int ?? 0)),
@@ -83,7 +82,7 @@ extension User: ViewDataRepresentable {
     }
 }
 
-extension User: NodeRepresentable {
+extension AdminPanelUser: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         return try Node([
             "id": Node.number(.int(id?.int ?? 0)),
@@ -96,10 +95,10 @@ extension User: NodeRepresentable {
     }
 }
 
-extension User: Timestampable {}
-extension User: SoftDeletable {}
-extension User: SessionPersistable {}
-extension User: Preparation {
+extension AdminPanelUser: Timestampable {}
+extension AdminPanelUser: SoftDeletable {}
+extension AdminPanelUser: SessionPersistable {}
+extension AdminPanelUser: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
             $0.id()
@@ -117,10 +116,10 @@ extension User: Preparation {
         try database.delete(self)
     }
 }
-extension User: PasswordAuthenticatable {
-    public static func authenticate(_ credentials: Password) throws -> User {
+extension AdminPanelUser: PasswordAuthenticatable {
+    public static func authenticate(_ credentials: Password) throws -> AdminPanelUser {
         guard
-            let user = try User.makeQuery().filter("email", credentials.username).first(),
+            let user = try AdminPanelUser.makeQuery().filter("email", credentials.username).first(),
             try BCryptHasher().check(credentials.password, matchesHash: user.password)
         else {
             throw Abort.unauthorized
@@ -129,4 +128,3 @@ extension User: PasswordAuthenticatable {
         return user
     }
 }
-

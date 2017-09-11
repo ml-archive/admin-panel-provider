@@ -1,9 +1,8 @@
 import Vapor
 import FluentProvider
 
-public final class UserResetToken: Model {
+public final class AdminPanelUserResetToken: Model {
     public let storage = Storage()
-    public static let name = "adminPanelUserResetToken"
     
     public let email: String
     public let token: String
@@ -35,7 +34,7 @@ public final class UserResetToken: Model {
     }
 }
 
-extension UserResetToken {
+extension AdminPanelUserResetToken {
     public var canBeUsed: Bool {
         guard usedAt == nil && expireAt > Date() else {
             return false
@@ -50,7 +49,7 @@ extension UserResetToken {
     }
 }
 
-extension UserResetToken: Preparation {
+extension AdminPanelUserResetToken: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
             $0.id()

@@ -72,17 +72,17 @@ public final class Provider: Vapor.Provider {
 
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
-        Middlewares.unsecured.append(PersistMiddleware(User.self))
+        Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
         Middlewares.unsecured.append(ActionMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
         Middlewares.secured.append(ProtectMiddleware(path: "/admin/login"))
-        Middlewares.secured.append(PasswordAuthenticationMiddleware(User.self))
+        Middlewares.secured.append(PasswordAuthenticationMiddleware(AdminPanelUser.self))
 
-        config.preparations.append(User.self)
-        config.preparations.append(UserResetToken.self)
+        config.preparations.append(AdminPanelUser.self)
+        config.preparations.append(AdminPanelUserResetToken.self)
         config.preparations.append(Action.self)
 
         config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
@@ -118,7 +118,7 @@ public final class Provider: Vapor.Provider {
         )
         try droplet.collection(panelRoutes)
 
-        let bUserRoutes = UserRoutes(
+        let bUserRoutes = AdminPanelUserRoutes(
             renderer: renderer,
             env: droplet.config.environment,
             mailgun: mailgun,

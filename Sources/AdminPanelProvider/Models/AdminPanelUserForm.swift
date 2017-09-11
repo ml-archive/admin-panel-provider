@@ -1,6 +1,6 @@
 import Vapor
 
-public struct UserForm {
+public struct AdminPanelUserForm {
     public let name: String
     public let nameErrors: [String]
     public let email: String
@@ -53,8 +53,8 @@ public struct UserForm {
     }
 }
 
-extension UserForm {
-    public static func validating(_ data: Content, ignoreRole: Bool = false) -> (UserForm, Bool) {
+extension AdminPanelUserForm {
+    public static func validating(_ data: Content, ignoreRole: Bool = false) -> (AdminPanelUserForm, Bool) {
         let name = data["name"]?.string
         let email = data["email"]?.string
         let title = data["title"]?.string
@@ -87,7 +87,7 @@ extension UserForm {
         password: String?,
         passwordRepeat: String?,
         ignoreRole: Bool
-    ) -> (UserForm, Bool) {
+    ) -> (AdminPanelUserForm, Bool) {
         var shouldResetPassword = shouldResetPassword
         var password = password
         var hasErrors = false
@@ -166,7 +166,7 @@ extension UserForm {
         }
 
         return (
-            UserForm(
+            AdminPanelUserForm(
                 name: name,
                 nameErrors: nameErrors,
                 email: email,
@@ -188,7 +188,7 @@ extension UserForm {
     }
 }
 
-extension UserForm: NodeRepresentable {
+extension AdminPanelUserForm: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         let nameObj = try Node(node: [
             "label": "Name",

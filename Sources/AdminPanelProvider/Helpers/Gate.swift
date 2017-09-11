@@ -30,12 +30,12 @@ public class Gate {
         return allow(role, requiredRole: requiredRole)
     }
 
-    public static func allow(_ user: User, requiredRole: Role) -> Bool {
+    public static func allow(_ user: AdminPanelUser, requiredRole: Role) -> Bool {
         guard let role = Role.init(from: user.role) else { return false }
         return allow(role, requiredRole: requiredRole)
     }
 
-    public static func assertAllowed(_ user: User, requiredRole: Role) throws {
+    public static func assertAllowed(_ user: AdminPanelUser, requiredRole: Role) throws {
         guard allow(user, requiredRole: requiredRole) else {
             // Don't show them this endpoint exists
             throw Abort.notFound
