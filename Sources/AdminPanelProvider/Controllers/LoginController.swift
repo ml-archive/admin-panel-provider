@@ -56,7 +56,7 @@ public final class LoginController {
         let next = req.query?["next"]
 
         return try renderer.make(
-            "Login/index",
+            "AdminPanel/Login/index",
             [
                 "collapse": "true",
                 "next": next
@@ -66,7 +66,7 @@ public final class LoginController {
     }
 
     public func resetPassword(req: Request) throws -> ResponseRepresentable {
-        return try renderer.make("Login/reset", for: req)
+        return try renderer.make("AdminPanel/Login/reset", for: req)
     }
 
     public func resetPasswordSubmit(req: Request) throws -> ResponseRepresentable {
@@ -89,7 +89,7 @@ public final class LoginController {
                     from: fromEmail,
                     to: email,
                     subject: "Reset password",
-                    path: "Emails/reset-password",
+                    path: "AdminPanel/Emails/reset-password",
                     renderer: renderer,
                     context: [
                         "name": .string(panelConfig.panelName),
@@ -117,7 +117,7 @@ public final class LoginController {
             return redirect("/admin/login").flash(.error, "Token does not exist")
         }
 
-        return try renderer.make("ResetPassword/form", ["token": token.token], for: req)
+        return try renderer.make("AdminPanel/ResetPassword/form", ["token": token.token], for: req)
     }
 
     public func resetPasswordTokenSubmit(req: Request) throws -> ResponseRepresentable {
@@ -184,6 +184,6 @@ public final class LoginController {
         ]
 
         let orders = Node(ordersData)
-        return try renderer.make("Dashboard/index", ["orders": orders], for: req)
+        return try renderer.make("AdminPanel/Dashboard/index", ["orders": orders], for: req)
     }
 }

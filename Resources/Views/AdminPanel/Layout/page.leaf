@@ -1,11 +1,11 @@
-#extend("Layout/base")
+#extend("AdminPanel/Layout/base")
 
 #export("page") {
-    #embed("Layout/Partials/header")
+    #embed("AdminPanel/Layout/Partials/header")
     #import("nav-top")
-    #embed("Dashboard/shared-menu")
-    #embed("Layout/Partials/header-post")
-    #embed("Layout/Partials/sidebar")
+    #embed("AdminPanel/Dashboard/shared-menu")
+    #embed("AdminPanel/Layout/Partials/header-post")
+    #embed("AdminPanel/Layout/Partials/sidebar")
     <div class="content-wrapper">
         <section class="content-header">
             #import("content-header")
@@ -15,7 +15,7 @@
             </ol>
         </section>
         <section class="content container-fluid">
-            #embed("Layout/Partials/alerts")
+            #embed("AdminPanel/Layout/Partials/alerts")
             #import("content")
         </section>
     </div>

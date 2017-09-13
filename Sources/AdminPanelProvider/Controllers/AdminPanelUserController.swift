@@ -33,7 +33,7 @@ public final class AdminPanelUserController {
         let users = try AdminPanelUser.makeQuery().filter("role", "User").all()
 
         return try renderer.make(
-            "BackendUsers/index",
+            "AdminPanel/BackendUser/index",
             [
                 "superAdmins": superAdmins,
                 "admins": admins,
@@ -47,7 +47,7 @@ public final class AdminPanelUserController {
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("BackendUsers/edit", ["fieldset": fieldset], for: req)
+        return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
@@ -94,7 +94,7 @@ public final class AdminPanelUserController {
                     from: "test@tested.com",
                     to: user.email,
                     subject: "Welcome to Admin Panel",
-                    path: "Emails/welcome",
+                    path: "AdminPanel/Emails/welcome",
                     renderer: renderer,
                     context: context
                 )
@@ -129,7 +129,7 @@ public final class AdminPanelUserController {
         }
 
         let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("BackendUsers/edit", ["user": user, "fieldset": fieldset], for: req)
+        return try renderer.make("AdminPanel/BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {

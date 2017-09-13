@@ -1,9 +1,9 @@
-#extend("Layout/base")
+#extend("AdminPanel/Layout/base")
 
 #export("page") {
     <div class="content-wrapper">
         <section class="content container-fluid">
-            #embed("Layout/Partials/alerts")
+            #embed("AdminPanel/Layout/Partials/alerts")
             #import("content")
         </section>
     </div>
