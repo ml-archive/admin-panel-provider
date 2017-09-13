@@ -44,6 +44,8 @@ extension Date {
                 return formatter.string(from: self)
             }
 
+            // NOTE: this code is very deliberate. Please be alert while making
+            // any modifications.
             let years = fallback / 365
             let months = fallback / 30
             let weeks = fallback / 7
