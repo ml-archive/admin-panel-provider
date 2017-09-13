@@ -1,4 +1,4 @@
-#extend("Layout/page")
+#extend("AdminPanel/Layout/page")
 
 #export("nav-top") {
 

@@ -61,4 +61,4 @@
         #menu:footer("See all activities", "/admin/activities")
     }
 }
-#embed("Layout/Partials/user-menu")
+#embed("AdminPanel/Layout/Partials/user-menu")
