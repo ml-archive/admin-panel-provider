@@ -3,7 +3,7 @@ import Storage
 import Paginator
 import AuditProvider
 
-public final class ActionMiddleware: Middleware {
+public final class ActivityMiddleware: Middleware {
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
         if request.auth.isAuthenticated(AdminPanelUser.self) {
             let node = try AuditEvent.makeQuery().limit(10).all().map { raw -> Node in

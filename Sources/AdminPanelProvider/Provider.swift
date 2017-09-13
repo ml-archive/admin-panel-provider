@@ -76,7 +76,7 @@ public final class Provider: Vapor.Provider {
         Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
-        Middlewares.unsecured.append(ActionMiddleware())
+        Middlewares.unsecured.append(ActivityMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
         Middlewares.secured.append(ProtectMiddleware(path: "/admin/login"))
