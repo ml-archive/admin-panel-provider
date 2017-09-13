@@ -5,7 +5,7 @@ import AuditProvider
 
 public final class ActionMiddleware: Middleware {
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
-        if request.auth.isAuthenticated(User.self) {
+        if request.auth.isAuthenticated(AdminPanelUser.self) {
             let node = try AuditEvent.makeQuery().limit(10).all().map { raw -> Node in
                 var node = try raw.makeNode(in: nil)
 
@@ -13,7 +13,7 @@ public final class ActionMiddleware: Middleware {
                     try node.set("createdAt", createdAt)
                 }
 
-                if let author = try User.find(raw.authorId) {
+                if let author = try AdminPanelUser.find(raw.authorId) {
                     try node.set("author", author.makeNode(in: nil))
                 }
 

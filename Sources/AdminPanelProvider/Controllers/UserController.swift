@@ -27,11 +27,11 @@ public final class UserController {
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let superAdmins = try User.makeQuery().filter("role", "Super Admin").all()
-        let admins = try User.makeQuery().filter("role", "Admin").all()
-        let users = try User.makeQuery().filter("role", "User").all()
+        let superAdmins = try AdminPanelUser.makeQuery().filter("role", "Super Admin").all()
+        let admins = try AdminPanelUser.makeQuery().filter("role", "Admin").all()
+        let users = try AdminPanelUser.makeQuery().filter("role", "User").all()
 
         return try renderer.make(
             "BackendUser/index",
@@ -45,18 +45,18 @@ public final class UserController {
     }
 
     public func create(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            let (form, hasErrors) = UserForm.validating(req.data)
+            let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
             if hasErrors {
                 let response = redirect("/admin/backend/users/create").flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
@@ -70,7 +70,7 @@ public final class UserController {
                 avatar = path
             }
 
-            let user = try User(
+            let user = try AdminPanelUser(
                 name: form.name,
                 title: form.title,
                 email: form.email,
@@ -101,7 +101,7 @@ public final class UserController {
                 )
             }
 
-            try User.audit(requestingUser, event: .created)
+            try AdminPanelUser.audit(requestingUser, event: .created)
 
             return redirect("/admin/backend/users").flash(.success, "Successfully created user")
         } catch {
@@ -117,38 +117,38 @@ public final class UserController {
     }
 
     public func edit(req: Request) throws -> ResponseRepresentable {
-        let user: User
+        let user: AdminPanelUser
         do {
-            user = try req.parameters.next(User.self)
+            user = try req.parameters.next(AdminPanelUser.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
         guard allowed else {
             throw Abort.notFound
         }
 
-        let fieldset = try req.storage["_fieldset"] as? Node ??  UserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            var user: User
+            var user: AdminPanelUser
             do {
-                user = try req.parameters.next(User.self)
+                user = try req.parameters.next(AdminPanelUser.self)
             } catch {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
             // users already have a role, so we don't care if they don't/can't update it
-            let (form, hasErrors) = UserForm.validating(req.data, ignoreRole: true)
+            let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
             if hasErrors {
                 let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
@@ -191,7 +191,7 @@ public final class UserController {
 
             try user.save()
 
-            try User.audit(requestingUser, event: .updated)
+            try AdminPanelUser.audit(requestingUser, event: .updated)
 
             return redirect("/admin/backend/users").flash(.success, "User has been updated")
         } catch {
@@ -207,12 +207,12 @@ public final class UserController {
     }
 
     public func delete(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: User
+        let user: AdminPanelUser
         do {
-            user = try req.parameters.next(User.self)
+            user = try req.parameters.next(AdminPanelUser.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
@@ -222,18 +222,18 @@ public final class UserController {
         }
 
         try user.delete()
-        try User.audit(requestingUser, event: .deleted, severity: .danger)
+        try AdminPanelUser.audit(requestingUser, event: .deleted, severity: .danger)
         return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.int ?? 0)/restore'>Undo</a>")
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(User.self)
+        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: User
+        let user: AdminPanelUser
         do {
             let id = try req.parameters.next(Int.self)
-            guard let u = try User.makeQuery().filter("id", id).withSoftDeleted().first() else {
+            guard let u = try AdminPanelUser.makeQuery().filter("id", id).withSoftDeleted().first() else {
                 throw Abort.notFound
             }
 
@@ -243,7 +243,7 @@ public final class UserController {
         }
 
         try user.restore()
-        try User.audit(requestingUser, event: "restored a \(User.auditDescription)", severity: .important)
+        try AdminPanelUser.audit(requestingUser, event: "restored a \(AdminPanelUser.auditDescription)", severity: .important)
         return redirect("/admin/backend/users").flash(.success, "User has been restored")
     }
 
