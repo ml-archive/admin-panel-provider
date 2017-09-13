@@ -52,8 +52,8 @@
         <ul class="menu">
             #loop(request.storage.actions, "action") {
                 <li><a href="#()">
-                    <div class="pull-left"><img src="/dist/img/user3-128x128.jpg" class="img-circle"></div>
-                    <h4>#(action.name) <small><i class="fa fa-clock-o"></i> 2 hours</small></h4> <p>#(action.message)</p>
+                    <div class="pull-left"><img src="#(action.author.avatarUrl)" class="img-circle"></div>
+                    <h4>#(action.author.name) <small><i class="fa fa-clock-o"></i> #timeSince(action.createdAt)</small></h4> <p>#(action.message)</p>
                 </a></li>
             }
         </ul>
@@ -61,4 +61,4 @@
         #menu:footer("See all activities", "/admin/activities")
     }
 }
-#embed("Layout/Partials/user-menu")
+#embed("AdminPanel/Layout/Partials/user-menu")

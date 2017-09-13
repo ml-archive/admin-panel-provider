@@ -5,6 +5,7 @@ import Sessions
 import AuthProvider
 import LeafProvider
 import Leaf
+import AuditProvider
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
@@ -75,7 +76,7 @@ public final class Provider: Vapor.Provider {
         Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
-        Middlewares.unsecured.append(ActionMiddleware())
+        Middlewares.unsecured.append(ActivityMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
         Middlewares.secured.append(ProtectMiddleware(path: "/admin/login"))
@@ -86,6 +87,7 @@ public final class Provider: Vapor.Provider {
         config.preparations.append(Action.self)
 
         config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
+        try config.addProvider(AuditProvider.Provider.self)
     }
 
     public func boot(_ droplet: Droplet) throws {
@@ -163,5 +165,6 @@ extension Provider {
         stem.register(Table())
         stem.register(TableRows())
         stem.register(GateAllow())
+        stem.register(TimeSince())
     }
 }

@@ -2,6 +2,7 @@ import Vapor
 import BCrypt
 import Storage
 import AuthProvider
+import AuditProvider
 import FluentProvider
 
 public final class AdminPanelUser: Model {
@@ -95,6 +96,7 @@ extension AdminPanelUser: NodeRepresentable {
     }
 }
 
+extension AdminPanelUser: Author {}
 extension AdminPanelUser: Timestampable {}
 extension AdminPanelUser: SoftDeletable {}
 extension AdminPanelUser: SessionPersistable {}
@@ -126,5 +128,10 @@ extension AdminPanelUser: PasswordAuthenticatable {
         }
 
         return user
+    }
+}
+extension AdminPanelUser: AuditCustomDescribable {
+    public static var auditDescription: String {
+        return "User"
     }
 }

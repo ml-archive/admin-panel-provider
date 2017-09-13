@@ -1,4 +1,4 @@
-#extend("Layout/page")
+#extend("AdminPanel/Layout/page")
 
 #export("title") { Backend Users | #if(user) { Edit } ##else() { Create }}
 
