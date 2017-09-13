@@ -49,10 +49,26 @@ public final class BoxOpen: BasicTag {
 
         var header = "<div class=\"box \(boxType == nil ? "" : "box-\(boxType!)")box-\(type)\">".makeBytes()
         if let title = title {
-            header.append(contentsOf: "<div class=\"box-header with-border\"><h3 class=\"box-title\">\(title)</h3></div>".makeBytes())
+            header.append(contentsOf: "<div class=\"box-header with-border\"><h3 class=\"box-title\">\(title)</h3><div class=\"box-tools pull-right\">".makeBytes())
         }
 
+        // TODO
+        // Check for body.
+        //if arguments.context.queue.tip?.child == nil {
+        //    header.append(contentsOf: "</div></div>".makeBytes())
+        //}
+
         return .bytes(header)
+    }
+
+    public func render(stem: Stem, context: LeafContext, value: Node?, leaf: Leaf) throws -> Bytes {
+        guard var body = value?.bytes else {
+            throw Abort.serverError
+        }
+
+        try body.append(contentsOf: stem.render(leaf, with: context))
+        body.append(contentsOf: "</div></div>".makeBytes())
+        return body
     }
 }
 
