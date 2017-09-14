@@ -77,7 +77,8 @@
 <!-- FastClick -->
 <script src="/plugins/fastclick/fastclick.js"></script>
 <!-- AdminLTE App -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 <script src="/dist/js/app.js"></script>
-
+<script src="/dist/js/admin-panel.js"></script>
 </body>
 </html>

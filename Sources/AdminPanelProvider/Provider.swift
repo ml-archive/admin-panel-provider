@@ -166,5 +166,6 @@ extension Provider {
         stem.register(TableRows())
         stem.register(GateAllow())
         stem.register(TimeSince())
+        stem.register(ButtonDelete())
     }
 }
