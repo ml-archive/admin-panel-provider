@@ -79,7 +79,7 @@ public final class Provider: Vapor.Provider {
         Middlewares.unsecured.append(ActivityMiddleware())
 
         Middlewares.secured = Middlewares.unsecured
-        Middlewares.secured.append(ProtectMiddleware(path: "/admin/login"))
+        Middlewares.secured.append(ProtectMiddleware())
         Middlewares.secured.append(PasswordAuthenticationMiddleware(AdminPanelUser.self))
 
         config.preparations.append(AdminPanelUser.self)

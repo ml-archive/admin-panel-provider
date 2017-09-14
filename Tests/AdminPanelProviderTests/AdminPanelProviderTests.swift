@@ -3,13 +3,13 @@ import Vapor
 import Testing
 import Leaf
 import LeafProvider
-import StencilProvider
 
 @testable import AdminPanelProvider
 
 class AdminPanelProviderTests: XCTestCase {
     func testBasic() throws {
-        let controller = try LoginController(renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"))
+        let config = PanelConfig(panelName: "Admin", baseUrl: "127.0.0.1:8080", skin: .black, isEmailEnabled: false, isStorageEnabled: false, fromEmail: nil)
+        let controller = try LoginController(renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"), mailgun: nil, panelConfig: config)
         let response = try controller.landing(req: Request(method: .get, uri: "/"))
         print("")
     }

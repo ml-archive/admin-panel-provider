@@ -1,0 +1,210 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "AWS",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/aws.git",
+      "version": "1.0.0"
+    },
+    {
+      "package": "Auth",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/auth.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "AuthProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/auth-provider.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "BCrypt",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/bcrypt.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "Bits",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/bits.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "CMySQL",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/cmysql.git",
+      "version": "2.0.2"
+    },
+    {
+      "package": "CTLS",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/ctls.git",
+      "version": "1.1.2"
+    },
+    {
+      "package": "Console",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/console.git",
+      "version": "2.2.0"
+    },
+    {
+      "package": "Core",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/core.git",
+      "version": "2.1.2"
+    },
+    {
+      "package": "Crypto",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/crypto.git",
+      "version": "2.1.1"
+    },
+    {
+      "package": "DataURI",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/data-uri.git",
+      "version": "1.0.0"
+    },
+    {
+      "package": "Debugging",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/debugging.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "Engine",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/engine.git",
+      "version": "2.2.1"
+    },
+    {
+      "package": "Flash",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/flash.git",
+      "version": "1.0.0"
+    },
+    {
+      "package": "Fluent",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/fluent.git",
+      "version": "2.3.0"
+    },
+    {
+      "package": "FluentProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/fluent-provider.git",
+      "version": "1.1.1"
+    },
+    {
+      "package": "JSON",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/json.git",
+      "version": "2.2.0"
+    },
+    {
+      "package": "Leaf",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/leaf.git",
+      "version": "2.0.2"
+    },
+    {
+      "package": "LeafProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/leaf-provider.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "MimeLib",
+      "reason": null,
+      "repositoryURL": "https://github.com/manGoweb/MimeLib.git",
+      "version": "1.0.0"
+    },
+    {
+      "package": "Multipart",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/multipart.git",
+      "version": "2.1.0"
+    },
+    {
+      "package": "MySQL",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql.git",
+      "version": "2.0.2"
+    },
+    {
+      "package": "MySQLDriver",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql-driver.git",
+      "version": "2.0.2"
+    },
+    {
+      "package": "MySQLProvider",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/mysql-provider.git",
+      "version": "2.0.0"
+    },
+    {
+      "package": "Node",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/node.git",
+      "version": "2.1.1"
+    },
+    {
+      "package": "Paginator",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/paginator.git",
+      "version": "1.1.2"
+    },
+    {
+      "package": "Random",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/random.git",
+      "version": "1.2.0"
+    },
+    {
+      "package": "Routing",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/routing.git",
+      "version": "2.1.0"
+    },
+    {
+      "package": "SQLite",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/sqlite.git",
+      "version": "2.1.0"
+    },
+    {
+      "package": "Slugify",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/slugify.git",
+      "version": "1.0.0"
+    },
+    {
+      "package": "Sockets",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/sockets.git",
+      "version": "2.1.0"
+    },
+    {
+      "package": "Storage",
+      "reason": null,
+      "repositoryURL": "https://github.com/nodes-vapor/storage.git",
+      "version": "0.4.0"
+    },
+    {
+      "package": "TLS",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/tls.git",
+      "version": "2.1.1"
+    },
+    {
+      "package": "Vapor",
+      "reason": null,
+      "repositoryURL": "https://github.com/vapor/vapor.git",
+      "version": "2.2.2"
+    }
+  ],
+  "version": 1
+}
