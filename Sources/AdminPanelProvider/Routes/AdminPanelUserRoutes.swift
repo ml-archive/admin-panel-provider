@@ -8,15 +8,13 @@ public final class AdminPanelUserRoutes: RouteCollection {
         renderer: ViewRenderer,
         env: Environment,
         mailgun: Mailgun?,
-        isEmailEnabled: Bool,
-        isStorageEnabled: Bool
+        panelConfig: PanelConfig
     ) {
         controller = AdminPanelUserController(
             renderer: renderer,
             env: env,
             mailgun: mailgun,
-            isEmailEnabled: isEmailEnabled,
-            isStorageEnabled: isStorageEnabled
+            panelConfig: panelConfig
         )
     }
 

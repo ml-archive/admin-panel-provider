@@ -10,7 +10,7 @@ import Paginator
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
-    public var config: PanelConfig!
+    public var panelConfig: PanelConfig!
 
     public init() {}
 
@@ -25,6 +25,7 @@ public final class Provider: Vapor.Provider {
         var isEmailEnabled = true
         var isStorageEnabled = true
         var fromEmail: String?
+        var fromName: String?
 
         if let config = config["mailgun"] {
             guard let email = config["fromAddress"]?.string else {
@@ -32,6 +33,12 @@ public final class Provider: Vapor.Provider {
             }
 
             fromEmail = email
+
+            guard let name = config["fromName"]?.string else {
+                throw ConfigError.missing(key: ["fromName"], file: "mailgun", desiredType: String.self)
+            }
+
+            fromName = name
         } else {
             print("WARNING: couldn't find `mailgun.json`. Email features will be disabled")
             isEmailEnabled = false
@@ -61,16 +68,15 @@ public final class Provider: Vapor.Provider {
             }
         }
 
-        let panelConfig = PanelConfig(
+        panelConfig = PanelConfig(
             panelName: panelName,
             baseUrl: baseUrl,
             skin: skin,
             isEmailEnabled: isEmailEnabled,
             isStorageEnabled: isStorageEnabled,
-            fromEmail: fromEmail
+            fromEmail: fromEmail,
+            fromName: fromName
         )
-
-        self.config = panelConfig
 
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
@@ -100,7 +106,7 @@ public final class Provider: Vapor.Provider {
         let renderer = droplet.view
 
         let mailgun: Mailgun?
-        if config.isEmailEnabled {
+        if panelConfig.isEmailEnabled {
             mailgun = try Mailgun(config: droplet.config)
         } else {
             mailgun = nil
@@ -109,7 +115,7 @@ public final class Provider: Vapor.Provider {
         let loginController = LoginController(
             renderer: renderer,
             mailgun: mailgun,
-            panelConfig: config
+            panelConfig: panelConfig
         )
 
         let loginCollection = LoginRoutes(controller: loginController)
@@ -118,7 +124,7 @@ public final class Provider: Vapor.Provider {
         let panelRoutes = PanelRoutes(
             renderer: renderer,
             mailgun: mailgun,
-            panelConfig: config
+            panelConfig: panelConfig
         )
         try droplet.collection(panelRoutes)
 
@@ -126,8 +132,7 @@ public final class Provider: Vapor.Provider {
             renderer: renderer,
             env: droplet.config.environment,
             mailgun: mailgun,
-            isEmailEnabled: config.isEmailEnabled,
-            isStorageEnabled: config.isStorageEnabled
+            panelConfig: panelConfig
         )
 
         try droplet.collection(bUserRoutes)

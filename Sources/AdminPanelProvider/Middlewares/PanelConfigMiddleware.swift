@@ -7,6 +7,7 @@ public struct PanelConfig {
 
     public let isEmailEnabled: Bool
     public let fromEmail: String?
+    public let fromName: String?
 
     public let isStorageEnabled: Bool
 
@@ -16,7 +17,8 @@ public struct PanelConfig {
         skin: Skin,
         isEmailEnabled: Bool,
         isStorageEnabled: Bool,
-        fromEmail: String?
+        fromEmail: String?,
+        fromName: String?
     ) {
         self.panelName = panelName
         self.baseUrl = baseUrl
@@ -24,6 +26,7 @@ public struct PanelConfig {
         self.isEmailEnabled = isEmailEnabled
         self.isStorageEnabled = isStorageEnabled
         self.fromEmail = fromEmail
+        self.fromName = fromName
     }
 
     public enum Skin: String {

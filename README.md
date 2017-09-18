@@ -101,7 +101,7 @@ Admin Panel can be configured by (adding or) modifying the `adminpanel.json` con
 
 ### Mailgun
 
-To support sending password reset emails, configure Mailgun using `mailgun.json`. In addition to the values for `key` and `domain`, AdminPanelProvider requires a value for the key `fromAddress` which will be used as the sender for password reset emails.
+To support sending password reset emails, configure Mailgun using `mailgun.json`. In addition to the values for `key` and `domain`, AdminPanelProvider requires a value for the key `fromAddress` and `fromName` which will be used as the sender for password reset emails.
 
 ## 🔐 SSO
 

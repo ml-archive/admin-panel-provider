@@ -8,21 +8,18 @@ public final class AdminPanelUserController {
     public let renderer: ViewRenderer
     public let env: Environment
     public let mailgun: Mailgun?
-    public let isEmailEnabled: Bool
-    public let isStorageEnabled: Bool
+    public let panelConfig: PanelConfig
 
     public init(
         renderer: ViewRenderer,
         env: Environment,
         mailgun: Mailgun?,
-        isEmailEnabled: Bool,
-        isStorageEnabled: Bool
+        panelConfig: PanelConfig
     ) {
         self.renderer = renderer
         self.env = env
         self.mailgun = mailgun
-        self.isEmailEnabled = isEmailEnabled
-        self.isStorageEnabled = isStorageEnabled
+        self.panelConfig = panelConfig
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
@@ -64,7 +61,11 @@ public final class AdminPanelUserController {
             }
 
             var avatar: String? = nil
-            if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
+            if
+                let profileImage = req.data["profileImage"]?.string,
+                profileImage.hasPrefix("data:"),
+                panelConfig.isStorageEnabled
+            {
                 let path = try Storage.upload(dataURI: profileImage, folder: "profile")
                 avatar = path
             }
@@ -80,10 +81,15 @@ public final class AdminPanelUserController {
             )
             try user.save()
 
-            if form.sendEmail, isEmailEnabled {
+            if
+                form.sendEmail,
+                panelConfig.isEmailEnabled,
+                let name = panelConfig.fromName,
+                let email = panelConfig.fromEmail
+            {
                 var context: ViewData = try [
                     "user": user.makeViewData(),
-                    "name": "<PLACEHOLDER> TODO"
+                    "name": .string(name)
                 ]
 
                 if form.hasRandomPassword {
@@ -91,7 +97,7 @@ public final class AdminPanelUserController {
                 }
 
                 mailgun?.sendEmail(
-                    from: "test@tested.com",
+                    from: email,
                     to: user.email,
                     subject: "Welcome to Admin Panel",
                     path: "AdminPanel/Emails/welcome",
@@ -181,7 +187,11 @@ public final class AdminPanelUserController {
                 }
             }
 
-            if let profileImage = req.data["profileImage"]?.string, profileImage.hasPrefix("data:"), isStorageEnabled {
+            if
+                let profileImage = req.data["profileImage"]?.string,
+                profileImage.hasPrefix("data:"),
+                panelConfig.isStorageEnabled
+            {
                 let path = try Storage.upload(dataURI: profileImage, folder: "profile")
                 user.avatar = path
             }
