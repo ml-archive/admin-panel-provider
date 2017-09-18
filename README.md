@@ -99,6 +99,10 @@ Admin Panel can be configured by (adding or) modifying the `adminpanel.json` con
 | `baseUrl` | `http://mytechblog.com` | No       | This will be used to generate urls for the admin panel (e.g. when resetting a password). |
 | `skin`    | `green-light`           | No       | The skin to use for the admin panel. The options will correspond to the [available skins](https://adminlte.io/themes/AdminLTE/documentation/index.html#layout) supported by AdminLTE. Please omit the `skin-` prefix when specifying the skin. |
 
+### Mailgun
+
+To support sending password reset emails, configure Mailgun using `mailgun.json`. In addition to the values for `key` and `domain`, AdminPanelProvider requires a value for the key `fromAddress` which will be used as the sender for password reset emails.
+
 ## 🔐 SSO
 
 Single sign-on can be a convenient way to offer users of your project to login into your admin panel. 

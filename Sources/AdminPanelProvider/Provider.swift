@@ -28,7 +28,7 @@ public final class Provider: Vapor.Provider {
 
         if let config = config["mailgun"] {
             guard let email = config["fromAddress"]?.string else {
-                throw ConfigError.missing(key: ["fromAddress"], file: "mailgun.json", desiredType: String.self)
+                throw ConfigError.missing(key: ["fromAddress"], file: "mailgun", desiredType: String.self)
             }
 
             fromEmail = email
