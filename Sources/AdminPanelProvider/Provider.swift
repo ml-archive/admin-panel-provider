@@ -6,6 +6,7 @@ import AuthProvider
 import LeafProvider
 import Leaf
 import AuditProvider
+import Paginator
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
@@ -88,6 +89,7 @@ public final class Provider: Vapor.Provider {
 
         config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
         try config.addProvider(AuditProvider.Provider.self)
+        try config.addProvider(PaginatorProvider.self)
     }
 
     public func boot(_ droplet: Droplet) throws {
