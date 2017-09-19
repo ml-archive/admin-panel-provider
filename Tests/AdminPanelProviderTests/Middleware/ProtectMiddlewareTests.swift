@@ -28,7 +28,6 @@ class ProtectMiddlewareTests: XCTestCase {
     }
 }
 
-
 extension Request {
     static var authenticated: Request {
         return Request(method: .get, uri: "/admin/authenticated")

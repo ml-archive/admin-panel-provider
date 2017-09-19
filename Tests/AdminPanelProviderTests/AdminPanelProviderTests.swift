@@ -8,9 +8,23 @@ import LeafProvider
 
 class AdminPanelProviderTests: XCTestCase {
     func testBasic() throws {
-        let config = PanelConfig(panelName: "Admin", baseUrl: "127.0.0.1:8080", skin: .black, isEmailEnabled: false, isStorageEnabled: false, fromEmail: nil)
-        let controller = try LoginController(renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"), mailgun: nil, panelConfig: config)
-        let response = try controller.landing(req: Request(method: .get, uri: "/"))
+        let config = PanelConfig(
+            panelName: "Admin",
+            baseUrl: "127.0.0.1:8080",
+            skin: .black,
+            isEmailEnabled: false,
+            isStorageEnabled: false,
+            fromEmail: nil,
+            fromName: nil
+        )
+        let controller = LoginController(
+            renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"),
+            mailgun: nil,
+            panelConfig: config
+        )
+        let response = try controller.landing(
+            req: Request(method: .get, uri: "/")
+        )
         print("")
     }
 }
