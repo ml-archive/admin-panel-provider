@@ -91,7 +91,7 @@ extension AdminPanelUser: NodeRepresentable {
             "title": .string(title),
             "email": .string(email),
             "role": .string(role),
-            "avatarUrl":  .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
+            "avatarUrl": .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
 }
