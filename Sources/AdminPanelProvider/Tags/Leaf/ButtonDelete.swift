@@ -17,7 +17,7 @@ public final class ButtonDelete: BasicTag {
         let title = arguments[1]?.string ?? ""
         let message = arguments[2]?.string ?? ""
 
-        let button = "<a href=\"\(path)\" class=\"btn btn-sm btn-danger\" data-tooltip=\"true\" data-delete=\"true\" data-title=\"\(title)\" data-text=\"\(message)\"><span class=\"fa fa-times\"></span><span class=\"sr-only\">Delete user</span></a>"
+        let button = "<a href=\"\(path)\" class=\"btn btn-box-tool\" data-toggle=\"tooltip\" data-delete=\"true\" data-title=\"Delete\" data-header=\"\(title)\" data-text=\"\(message)\"><span class=\"fa fa-times\"></span><span class=\"sr-only\">Delete user</span></a>"
 
         return .bytes(button.makeBytes())
     }

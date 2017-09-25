@@ -1,11 +1,12 @@
 var AdminPanel = (function() {
-	confirmDelete: function(element) {
+	return {
+		confirmDelete: function(element) {
 			// Confirm modal title
-			var modalTitle = $(element).data('delete-title');
+			var modalTitle = $(element).data('header');
 			modalTitle = !modalTitle ? 'Please confirm' : modalTitle;
 
 			// Confirm modal text
-			var modalText = $(element).data('delete-text');
+			var modalText = $(element).data('text');
 			modalText = !modalText ? 'Are you sure you want to delete?' : modalText;
 
 			var closure = function(e) {
@@ -16,15 +17,15 @@ var AdminPanel = (function() {
 				bootbox.dialog({
 					title: modalTitle,
 					message: '<span class="fa fa-warning"></span> ' + modalText,
-					className: 'nodes-delete',
+					className: 'modal modal-danger',
 					buttons: {
 						cancel: {
 							label: 'Cancel',
-							className: 'btn-default'
+							className: 'btn-outline'
 						},
 						success: {
 							label: 'Delete',
-							className: 'btn-danger',
+							className: 'btn-outline',
 							callback: function () {
 								if ($(element).is('form')) {
 									$(element).trigger('submit');
@@ -58,10 +59,11 @@ var AdminPanel = (function() {
 				$(element).click(closure);
 			}
 		}
-})
+	}
+})();
 
-jQuery(document).ready(function($) {
-	$('[data-confirm="true"]').each(function() {
-		Nodes.confirmModal($(this));
+$( document ).ready(function() {
+	$('[data-delete="true"]').each(function() {
+		AdminPanel.confirmDelete($(this));
 	});
 })
