@@ -10,15 +10,13 @@ import Paginator
 
 public final class Provider: Vapor.Provider {
     public static let repositoryName = "nodes-vapor/admin-panel-provider"
-    public var panelConfig: PanelConfig!
+    public var panelConfig: PanelConfig
 
-    public init() {}
-
-    public convenience init(config: Config) throws {
-        self.init()
+    public init(panelConfig: PanelConfig) {
+        self.panelConfig = panelConfig
     }
 
-    public func boot(_ config: Config) throws {
+    public convenience init(config: Config) throws {
         var panelName = "Admin Panel"
         var baseUrl = "127.0.0.1:8080"
         var skin: PanelConfig.Skin = .blue
@@ -29,28 +27,38 @@ public final class Provider: Vapor.Provider {
 
         if let config = config["mailgun"] {
             guard let email = config["fromAddress"]?.string else {
-                throw ConfigError.missing(key: ["fromAddress"], file: "mailgun", desiredType: String.self)
+                throw ConfigError.missing(
+                    key: ["fromAddress"],
+                    file: "mailgun",
+                    desiredType: String.self
+                )
             }
 
             fromEmail = email
 
             guard let name = config["fromName"]?.string else {
-                throw ConfigError.missing(key: ["fromName"], file: "mailgun", desiredType: String.self)
+                throw ConfigError.missing(
+                    key: ["fromName"],
+                    file: "mailgun",
+                    desiredType: String.self
+                )
             }
 
             fromName = name
         } else {
-            print("WARNING: couldn't find `mailgun.json`. Email features will be disabled")
+            print("WARNING: couldn't find `mailgun.json`. Email features will be disabled.")
             isEmailEnabled = false
         }
 
         if config["storage"] != nil {
             // only add storage if it hasn't been added yet
-            if !config.providers.contains(where: { type(of: $0).repositoryName == "Storage" }) {
+            if !config.providers
+                .contains(where: { type(of: $0).repositoryName == "Storage" })
+            {
                 try config.addProvider(StorageProvider.self)
             }
         } else {
-            print("WARNING: couldn't find `storage.json`. Image uploads will be disabled")
+            print("WARNING: couldn't find `storage.json`. Image uploads will be disabled.")
             isStorageEnabled = false
         }
 
@@ -68,7 +76,7 @@ public final class Provider: Vapor.Provider {
             }
         }
 
-        panelConfig = PanelConfig(
+        let panelConfig = PanelConfig(
             panelName: panelName,
             baseUrl: baseUrl,
             skin: skin,
@@ -77,7 +85,10 @@ public final class Provider: Vapor.Provider {
             fromEmail: fromEmail,
             fromName: fromName
         )
+        self.init(panelConfig: panelConfig)
+    }
 
+    public func boot(_ config: Config) throws {
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
         Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
         Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))

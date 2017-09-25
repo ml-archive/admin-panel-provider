@@ -34,7 +34,7 @@ public final class Box: Tag {
 }
 
 
-public final class BoxOpen: BasicTag {
+public final class BoxOpen: Tag {
     public enum Error: Swift.Error {
         case invalidSyntax(String)
     }
@@ -42,7 +42,10 @@ public final class BoxOpen: BasicTag {
     public init() {}
     public let name = "box:open"
 
-    public func run(arguments: ArgumentList) throws -> Node? {
+    public func run(
+        tagTemplate: TagTemplate,
+        arguments: ArgumentList
+    ) throws -> Node? {
         let title = arguments[0]?.string
         let type = arguments[1]?.string ?? "default"
         let boxType = arguments[2]?.string
@@ -52,11 +55,9 @@ public final class BoxOpen: BasicTag {
             header.append(contentsOf: "<div class=\"box-header with-border\"><h3 class=\"box-title\">\(title)</h3><div class=\"box-tools pull-right\">".makeBytes())
         }
 
-        // TODO
-        // Check for body.
-        //if arguments.context.queue.tip?.child == nil {
-        //    header.append(contentsOf: "</div></div>".makeBytes())
-        //}
+        if tagTemplate.body == nil {
+            header.append(contentsOf: "</div></div>".makeBytes())
+        }
 
         return .bytes(header)
     }
