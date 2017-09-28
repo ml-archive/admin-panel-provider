@@ -50,20 +50,20 @@ public struct PanelConfig {
 }
 
 public final class PanelConfigMiddleware: Middleware {
-    public var config: Node
+    private let config: PanelConfig
 
     init(_ config: PanelConfig) throws {
-        self.config = try Node(node: [
-            "name": config.panelName,
-            "skin": config.skin.cssClass,
-            "isEmailEnabled": config.isEmailEnabled,
-            "isStorageEnabled": config.isStorageEnabled,
-            "sso": Node([:])
-        ])
+        self.config = config
     }
 
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
-        request.storage["adminPanel"] = config
+        var updatedConfig = request.storage["adminPanel"] as? Node ?? Node([:])
+        try updatedConfig.set("name", config.panelName)
+        try updatedConfig.set("skin", config.skin.cssClass)
+        try updatedConfig.set("isEmailEnabled", config.isEmailEnabled)
+        try updatedConfig.set("isStorageEnabled", config.isStorageEnabled)
+
+        request.storage["adminPanel"] = updatedConfig
         return try next.respond(to: request)
     }
 }
