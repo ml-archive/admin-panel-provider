@@ -54,7 +54,14 @@ private func setupProviders() throws {
 This package relies heavily on the [Leaf](https://docs.vapor.codes/2.0/leaf/package/) view renderer. For Admin Panel to work, please make sure that you have added the `LeafProvider`:
 
 ```swift
-try addProvider(LeafProvider.Provider.self)
+import LeafProvider
+
+// ...
+
+private func setupProviders() throws {
+    // ...
+    try addProvider(LeafProvider.Provider.self)
+}
 ```
 
 After adding the provider, please make sure that your project is using Leaf as the view renderer. To do that, please ensure that the `view` key is set correctly in `droplet.json`:
