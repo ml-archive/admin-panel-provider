@@ -27,7 +27,7 @@ public final class LoginController {
             }
 
             let credentials = Password(username: username, password: password)
-            let user = try User.authenticate(credentials)
+            let user = try AdminPanelUser.authenticate(credentials)
 
             let shouldPersist = req.data["rememberMe"] != nil
             try req.auth.authenticate(user, persist: shouldPersist)
@@ -56,7 +56,7 @@ public final class LoginController {
         let next = req.query?["next"]
 
         return try renderer.make(
-            "Login/index",
+            "AdminPanel/Login/index",
             [
                 "collapse": "true",
                 "next": next
@@ -66,22 +66,22 @@ public final class LoginController {
     }
 
     public func resetPassword(req: Request) throws -> ResponseRepresentable {
-        return try renderer.make("Login/reset", for: req)
+        return try renderer.make("AdminPanel/Login/reset", for: req)
     }
 
     public func resetPasswordSubmit(req: Request) throws -> ResponseRepresentable {
         do {
             guard
                 let email = req.data["email"]?.string,
-                let user = try User.makeQuery().filter("email", email).first()
+                let user = try AdminPanelUser.makeQuery().filter("email", email).first()
             else {
                 return redirect("/admin/login").flash(.success, "E-mail with instructions sent if user exists")
             }
 
-            try UserResetToken.makeQuery().filter("email", email).delete()
+            try AdminPanelUserResetToken.makeQuery().filter("email", email).delete()
 
             let randomString = String.random(64)
-            let token = UserResetToken(email: email, token: randomString, expireAt: Date().addingTimeInterval(60*60))
+            let token = AdminPanelUserResetToken(email: email, token: randomString, expireAt: Date().addingTimeInterval(60*60))
             try token.save()
             
             if let fromEmail = panelConfig.fromEmail {
@@ -89,7 +89,7 @@ public final class LoginController {
                     from: fromEmail,
                     to: email,
                     subject: "Reset password",
-                    path: "Emails/reset-password",
+                    path: "AdminPanel/Emails/reset-password",
                     renderer: renderer,
                     context: [
                         "name": .string(panelConfig.panelName),
@@ -111,13 +111,13 @@ public final class LoginController {
         let tokenParam = try req.parameters.next(String.self)
 
         guard
-            let token = try UserResetToken.makeQuery().filter("token", tokenParam).first(),
+            let token = try AdminPanelUserResetToken.makeQuery().filter("token", tokenParam).first(),
             token.canBeUsed
         else {
             return redirect("/admin/login").flash(.error, "Token does not exist")
         }
 
-        return try renderer.make("ResetPassword/form", ["token": token.token], for: req)
+        return try renderer.make("AdminPanel/ResetPassword/form", ["token": token.token], for: req)
     }
 
     public func resetPasswordTokenSubmit(req: Request) throws -> ResponseRepresentable {
@@ -131,7 +131,7 @@ public final class LoginController {
         }
 
         guard
-            let token = try UserResetToken.makeQuery().filter("token", tokenParam).first(),
+            let token = try AdminPanelUserResetToken.makeQuery().filter("token", tokenParam).first(),
             token.canBeUsed
         else {
             return redirect("/admin/login").flash(.error, "Token does not exist")
@@ -145,7 +145,7 @@ public final class LoginController {
             return redirect("/admin/login/reset/" + tokenParam).flash(.error, "Passwords do not match")
         }
 
-        guard let user = try User.makeQuery().filter("email", email).first() else {
+        guard let user = try AdminPanelUser.makeQuery().filter("email", email).first() else {
             return redirect("/admin/login").flash(.error, "User not found")
         }
 
@@ -184,6 +184,6 @@ public final class LoginController {
         ]
 
         let orders = Node(ordersData)
-        return try renderer.make("Dashboard/index", ["orders": orders], for: req)
+        return try renderer.make("AdminPanel/Dashboard/index", ["orders": orders], for: req)
     }
 }

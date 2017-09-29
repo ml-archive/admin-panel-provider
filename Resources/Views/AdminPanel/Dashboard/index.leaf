@@ -1,0 +1,118 @@
+#extend("AdminPanel/Layout/page")
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    <h1>#(request.storage.adminPanel.name)<small> Version 1.0</small></h1>
+}
+
+#export("content") {
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+            #infobox("Cpu traffic", "90%","aqua", "ion ion-ios-gear-outline")
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+            #infobox("LIKES", "41,410","red", "fa fa-google-plus")
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+            #infobox("SALES", "760","green", "ion ion-ios-cart-outline")
+        </div>
+
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+            #infobox("NEW MEMBERS", "2,000","orange", "ion ion-ios-people-outline")
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-8">
+            #box("Monthly Recap Report") {
+               <canvas id="myChart" height="160px"></canvas>
+                <script>
+                var ctx = document.getElementById("myChart").getContext('2d');
+                var areaChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Oct", "Dec"],
+                        datasets: [{
+                            label: '',
+                            data: [65, 59, 80, 81, 76, 65, 60, 62, 55, 60, 72, 85],
+                            backgroundColor: 'rgba(60, 141, 188, 0.8)'
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{ gridLines: { display: false }}]
+                        },
+                        responsive: true,
+                        showScale: true,
+                        scaleBeginAtZero: true,
+                        scaleShowGridLines: false,
+                        scaleGridLineWidth: 1,
+                        scaleGridLineColor: 'rgba(0, 0, 0, 0.05)',
+                        bezierCurve: true,
+                        bezierCurveTension: 0.3,
+                        pointDot: false,
+                        pointDotRadius: 4,
+                        pointDotStrokeWidth: 1,
+                        datasetFill: true,
+                        datasetStrokeWidth: 2,
+                        maintainAspectRatio: false
+                    }
+                });
+                </script>
+            }
+        </div>
+
+        <div class="col-sm-12 col-md-6 col-lg-4">
+            #box("Browser Usage", "info") {
+            <canvas id="userChart" height="140px"></canvas>
+                <script>
+                    var ctx = document.getElementById("userChart").getContext('2d');
+                    var pieChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [
+                                "Chrome", "Safari", "IE", "Mobile"
+                            ],
+                            datasets: [{
+                                data: [15, 20, 10, 60],
+                                backgroundColor: [
+                                    '#()f39c12', '#()00c0ef', '#()dd4b39', '#()00a65a'
+                                ]
+                            }]
+                        },
+                        options: {
+
+                        }
+                    });
+                </script>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            #box:open("Orders", "warning")
+            #box:body() {
+                #table("ID", "Item", "Status") {
+                    #table:rows(orders, "row") {
+                        <td>#(row.id)</td>
+                        <td>#(row.title)</td>
+                        <td>#label(row.status.value, row.status.type)</td>
+                    }
+                }
+            }
+            #box:footer() {
+                <a href="#" class="btn btn-sm btn-default btn-flag pull-right">View All Orders</a>
+            }
+            #box:close()
+        </div>
+    </div>
+}

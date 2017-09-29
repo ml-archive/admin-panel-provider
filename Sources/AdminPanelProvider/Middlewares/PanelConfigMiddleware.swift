@@ -7,6 +7,7 @@ public struct PanelConfig {
 
     public let isEmailEnabled: Bool
     public let fromEmail: String?
+    public let fromName: String?
 
     public let isStorageEnabled: Bool
 
@@ -16,7 +17,8 @@ public struct PanelConfig {
         skin: Skin,
         isEmailEnabled: Bool,
         isStorageEnabled: Bool,
-        fromEmail: String?
+        fromEmail: String?,
+        fromName: String?
     ) {
         self.panelName = panelName
         self.baseUrl = baseUrl
@@ -24,6 +26,7 @@ public struct PanelConfig {
         self.isEmailEnabled = isEmailEnabled
         self.isStorageEnabled = isStorageEnabled
         self.fromEmail = fromEmail
+        self.fromName = fromName
     }
 
     public enum Skin: String {
@@ -47,19 +50,20 @@ public struct PanelConfig {
 }
 
 public final class PanelConfigMiddleware: Middleware {
-    public var config: Node
+    private let config: PanelConfig
 
     init(_ config: PanelConfig) throws {
-        self.config = try Node(node: [
-            "name": config.panelName,
-            "skin": config.skin.cssClass,
-            "isEmailEnabled": config.isEmailEnabled,
-            "isStorageEnabled": config.isStorageEnabled
-        ])
+        self.config = config
     }
 
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
-        request.storage["adminPanel"] = config
+        var updatedConfig = request.storage["adminPanel"] as? Node ?? Node([:])
+        try updatedConfig.set("name", config.panelName)
+        try updatedConfig.set("skin", config.skin.cssClass)
+        try updatedConfig.set("isEmailEnabled", config.isEmailEnabled)
+        try updatedConfig.set("isStorageEnabled", config.isStorageEnabled)
+
+        request.storage["adminPanel"] = updatedConfig
         return try next.respond(to: request)
     }
 }

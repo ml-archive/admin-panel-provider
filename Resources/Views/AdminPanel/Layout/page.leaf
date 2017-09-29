@@ -1,0 +1,22 @@
+#extend("AdminPanel/Layout/base")
+
+#export("page") {
+    #embed("AdminPanel/Layout/Partials/header")
+    #import("nav-top")
+    #embed("AdminPanel/Dashboard/shared-menu")
+    #embed("AdminPanel/Layout/Partials/header-post")
+    #embed("AdminPanel/Layout/Partials/sidebar")
+    <div class="content-wrapper">
+        <section class="content-header">
+            #import("content-header")
+            <ol class="breadcrumb">
+                <li><a href="/admin/dashboard"><i class="fa fa-dashboard"></i>Home</a></li>
+                #import("breadcrumb")
+            </ol>
+        </section>
+        <section class="content container-fluid">
+            #embed("AdminPanel/Layout/Partials/alerts")
+            #import("content")
+        </section>
+    </div>
+}

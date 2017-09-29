@@ -1,0 +1,10 @@
+#extend("AdminPanel/Layout/base")
+
+#export("page") {
+    <div class="content-wrapper">
+        <section class="content container-fluid">
+            #embed("AdminPanel/Layout/Partials/alerts")
+            #import("content")
+        </section>
+    </div>
+}

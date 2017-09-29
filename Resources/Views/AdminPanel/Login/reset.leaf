@@ -1,0 +1,104 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>#(request.storage.adminPanel.name) | Password reset</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.7 -->
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/dist/css/AdminLTE.min.css">
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition login-page">
+<style>
+#()alternative-login {
+	width: 10px;
+	height: 10px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: linear-gradient(225deg, transparent 40%, #()f3f3f3 50%, #()ccc 50%, #()bbb 50%, #()ddd 62%, #()f3f3f3 80%, #()fff 100%), #()f3f3f3 url("../images/nodes.png") top right no-repeat;
+	background-size: auto, 62px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	transition: all .35s ease;
+	z-index: 100
+}
+
+#()alternative-login:before, #()alternative-login:after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 12.5%;
+    bottom: 5.8%;
+    width: 70%;
+    max-width: 100px;
+    max-height: 80px;
+    height: 55%;
+    box-shadow: 0 12px 15px rgba(0, 0, 0, 0.3);
+    transform: skew(10deg) rotate(6deg)
+}
+
+#()alternative-login:after {
+    left: auto;
+    right: 5.8%;
+    bottom: auto;
+    top: 14.16%;
+    transform: skew(-15deg) rotate(-84deg)
+}
+
+#()alternative-login:hover {
+    width: 80px;
+    height: 80px
+}
+
+#()alternative-login:hover:before, #()alternative-login:hover:after {
+    box-shadow: 0 14px 20px rgba(0, 0, 0, 0.3)
+}
+
+</style>
+<div class="login-box">
+  <div class="login-logo">
+      <b>#(request.storage.adminPanel.name)</b>
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+    <p class="login-box-msg">Reset your password</p>
+    #embed("AdminPanel/Layout/Partials/alerts")
+    
+    <form method="POST" action="/admin/login/reset">
+      <div class="form-group has-feedback">
+        <input type="email" name="email" class="form-control" placeholder="Email">
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+	  </div> 
+      <div class="row">
+        <div class="pull-right col-xs-4">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Reset</button>
+        </div>
+      </div>
+    </form>
+
+    <a href="/admin/login">Back to login</a><br>
+
+  </div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery 3 -->
+<script src="/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+
+</body>
+</html>

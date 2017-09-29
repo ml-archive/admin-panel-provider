@@ -1,0 +1,114 @@
+#extend("AdminPanel/Layout/page")
+
+#export("title") { Backend Users }
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    <h1>Backend Users</h1>
+}
+
+#export("breadcrumb") {
+    <li class="active">Backend Users</li>
+}
+
+#export("content") {
+    <style>
+        .small-profile {
+            height: 40px; width: 40px; margin-right: 10px;
+        }
+    </style>
+
+    <div class="layout horizontal center justified padding-vertical-sm">
+        <a href="/admin/backend/users/create" class="btn btn-primary pull-right">
+            <span class="fa fa-user-plus"></span>
+            <span class="hidden-xs">Create backend user</span>
+        </a>
+    </div>
+    #ifNotEmpty(superAdmins) {
+        <div class="row">
+            <div class="col-sm-12"><h1>Super Admins</h1></div>
+        </div>        
+        <div class="row">
+            #loop(superAdmins, "admin") {
+                <div class="col-sm-6 col-md-3">
+                    <div class="box box-default" data-widget-"box-widget">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">#(admin.name)</h3>
+                            <div class="box-tools">
+                                <a href="/admin/backend/users/#(admin.id)/edit" class="btn btn-box-tool" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i></a>
+                                <a href="/admin/backend/users/#(admin.id)/delete" class="btn btn-danger" data-delete="true" data-token="no-token" style="padding: 5px; font-size: 12px;" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="box-body"> 
+                            <div class="pull-left">
+                                #image:round(admin.avatarUrl, "user-image small-profile")
+                            </div>
+                            <h4 style="margin: 0 0 0 45px;">#(admin.email)</h4>
+                            <p style="margin: 0 0 0 45px; font-size: 12px;">#(admin.title)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    #ifNotEmpty(admins) {
+        <div class="row">
+            <div class="col-sm-12"><h1>Admins</h1></div>
+        </div>        
+        <div class="row">
+            #loop(admins, "admin") {
+                <div class="col-sm-6 col-md-3">
+                    <div class="box box-default" data-widget-"box-widget">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">#(admin.name)</h3>
+                            <div class="box-tools">
+                                <a href="/admin/backend/users/#(admin.id)/edit" class="btn btn-box-tool" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i></a>
+                                <a href="/admin/backend/users/#(admin.id)/delete" class="btn btn-danger" data-delete="true" data-token="no-token" style="padding: 5px; font-size: 12px;" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="box-body"> 
+                            <div class="pull-left">
+                                #image:round(admin.avatarUrl, "user-image small-profile")
+                            </div>
+                            <h4 style="margin: 0 0 0 45px;">#(admin.email)</h4>
+                            <p style="margin: 0 0 0 45px; font-size: 12px;">#(admin.title)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    #ifNotEmpty(users) {
+        <div class="row">
+            <div class="col-sm-12"><h1>Users</h1></div>
+        </div>        
+        <div class="row">
+            #loop(users, "user") {
+                <div class="col-sm-6 col-md-3">
+                    <div class="box box-default" data-widget-"box-widget">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">#(user.name)</h3>
+                            <div class="box-tools">
+                                <a href="/admin/backend/users/#(user.id)/edit" class="btn btn-box-tool" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i></a>
+                                <a href="/admin/backend/users/#(user.id)/delete" class="btn btn-danger" data-delete="true" data-token="no-token" style="padding: 5px; font-size: 12px;" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="box-body"> 
+                            <div class="pull-left">
+                                #image:round(user.avatarUrl, "user-image small-profile")
+                            </div>
+                            <h4 style="margin: 0 0 0 45px;">#(user.email)</h4>
+                            <p style="margin: 0 0 0 45px; font-size: 12px;">#(user.title)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+} 

@@ -1,0 +1,64 @@
+#if(request.storage.actions) {
+    <style>
+        .menu {
+            max-height: 200px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow-x: hidden;
+        }
+
+        .menu > li {
+            list-style: none;
+        }
+
+        .menu > li > a {
+            margin: 0;
+            padding: 10px 10px;
+            display: block;
+            white-space: nowrap;
+            border-bottom: 1px solid #()f4f4f4;
+        }
+
+        .menu > li > a > div > img {
+            margin: auto 10px auto auto;
+            width: 40px;
+            height: 40px;
+        }
+
+        .menu > li > a > h4 {
+            padding: 0px;
+            margin: 0 0 0 45px;
+            color: #()444444;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .menu > li > a > h4 > small {
+            color: #()999999;
+            font-size: 10px;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .menu > li > a > p {
+            margin: 0 0 0 45px;
+            font-size: 12px;
+            color: #()888888;
+        }
+    </style>
+    #menu:toggle("history", "Recent activity", request.storage.unseenActivities, "danger") {
+        <ul class="menu">
+            #loop(request.storage.actions, "action") {
+                <li><a href="#()">
+                    <div class="pull-left"><img src="#(action.author.avatarUrl)" class="img-circle"></div>
+                    <h4>#(action.author.name) <small><i class="fa fa-clock-o"></i> #timeSince(action.createdAt)</small></h4> <p>#(action.message)</p>
+                </a></li>
+            }
+        </ul>
+
+        #menu:footer("See all activities", "/admin/activities")
+    }
+}
+#embed("AdminPanel/Layout/Partials/user-menu")

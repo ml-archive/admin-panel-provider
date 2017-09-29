@@ -10,7 +10,7 @@ public final class Table: BasicTag {
     public let name = "table"
 
     public func run(arguments: ArgumentList) throws -> Node? {
-        var table = "<table class=\"table\"><tbody><tr>"
+        var table = "<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>"
 
         for arg in arguments.list {
             guard let arg = arg.value(with: arguments.stem, in: arguments.context)?.string else {
@@ -20,7 +20,7 @@ public final class Table: BasicTag {
             table.append("<th>\(arg)</th>")
         }
 
-        table.append("</tr>")
+        table.append("</tr></thead><tbody>")
 
         return .bytes(table.makeBytes())
     }
@@ -31,7 +31,7 @@ public final class Table: BasicTag {
         }
 
         try body.append(contentsOf: stem.render(leaf, with: context))
-        body.append(contentsOf: "</tbody></table>".makeBytes())
+        body.append(contentsOf: "</tbody></table></div>".makeBytes())
         return body
     }
 }

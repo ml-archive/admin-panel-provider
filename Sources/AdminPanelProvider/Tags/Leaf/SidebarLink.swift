@@ -33,7 +33,7 @@ public final class SidebarLink: BasicTag {
             link.append("<i class=\"\(icon)\"></i> ")
         }
 
-        link.append("\(title)</a></li>")
+        link.append("<span>\(title)</span></a></li>")
 
         return .bytes(link.makeBytes())
     }

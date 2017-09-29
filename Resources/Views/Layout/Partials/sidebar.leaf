@@ -1,9 +1,0 @@
- <div class="main-sidebar">
-        <!-- Inner sidebar -->
-        <div class="sidebar">
-          <!-- Sidebar Menu -->
-          <ul class="sidebar-menu">
-            #embed("Dashboard/shared-sidebar")
-          </ul><!-- /.sidebar-menu -->
-    </div><!-- /.sidebar -->
-</div><!-- /.main-sidebar -->

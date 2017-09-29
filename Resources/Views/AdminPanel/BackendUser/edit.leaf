@@ -1,0 +1,177 @@
+#extend("AdminPanel/Layout/page")
+
+#export("title") { Backend Users | #if(user) { Edit } ##else() { Create }}
+
+#export("nav-top") {
+
+}
+
+#export("content-header") {
+    #if(user) {
+        <h1>Edit Backend User<small>#(user.name)</small></h1>
+    } ##else() {
+        <h1>Create Backend User</h1>
+    }
+}
+
+#export("breadcrumb") {
+    <li><a href="/admin/backend/users">Backend Users</a></li>
+    <li class="active">
+        #if(user) {
+            Edit Backend User
+        } ##else() {
+            Create Backend User
+        }
+    </li>
+}
+
+#export("content") {
+<style>
+.upload-drop-zone {
+  height: 200px;
+  border-width: 2px;
+  margin-bottom: 20px;
+}
+
+/* skin.css Style*/
+.upload-drop-zone {
+  color: #()ccc;
+  border-style: dashed;
+  border-color: #()ccc;
+  line-height: 200px;
+  text-align: center
+}
+.upload-drop-zone.drop {
+  color: #()222;
+  border-color: #()222;
+}
+
+.profile-preview {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+}
+
+</style>
+
+<script>
+$(function() {
+    'use strict';
+
+    function upload(files) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var result = e.target.result;
+            document.getElementById('previewImage').setAttribute('src', result);
+            document.getElementById('hiddenFile').value = result;
+        };
+
+        reader.readAsDataURL(files[0]);
+    }
+
+    var dropZone = document.getElementById('drop-zone');
+    var uploadForm = document.forms[0];
+
+    var startUpload = function(files) {
+        console.log(files)
+    }
+
+    dropZone.ondrop = function(e) {
+        e.preventDefault();
+        this.className = 'upload-drop-zone';
+        upload(e.dataTransfer.files);
+    }
+
+    dropZone.ondragover = function() {
+        this.className = 'upload-drop-zone drop';
+        return false;
+    }
+
+    dropZone.ondragleave = function() {
+        this.className = 'upload-drop-zone';
+        return false;
+    }
+    
+    document.getElementById('fileInput').onchange = function(e) {
+        upload(e.target.files);
+    };
+});
+</script>
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        #box:open("User Details", "primary")
+            #box:body() {
+                #if(user) {
+                    #form:open("/admin/backend/users/#(user.id)/edit", "post", "true")
+                    <input type="hidden" name="id" value="#(user.id)">
+                } ##else() {
+                    #form:open("/admin/backend/users/store", "post", "true")
+                }
+            
+                #form:textgroup(fieldset.name, user.name, "", "required")
+                #form:textgroup(fieldset.title, user.title, "", "required")
+                #form:emailgroup(fieldset.email, user.email, "", "required")
+
+                #equal(user.id, request.storage.auth-authenticated.id) {
+                } ##else() {
+                    <div class="form-group ">
+                        <label class="control-label" for="role">Role</label>
+                        <select class="form-control User" id="role" name="role">
+                            #gate:allow(request.storage.auth-authenticated.role, "Super Admin") {
+                            <option value="Super Admin" #equal(user.role, "Super Admin"){ selected }>Super Admin</option>
+                            }
+
+                            #gate:allow(request.storage.auth-authenticated.role, "Admin") {
+                            <option value="Admin" #equal(user.role, "Admin") { selected }>Admin</option>
+                            }
+
+                            <option value="User" #equal(user.role, "User") { selected }>User</option>
+                        </select>
+                    </div>
+                }   
+
+                #if(request.storage.adminPanel.isEmailEnabled) {
+                    #if(user) {
+                    } ##else() {
+                        #form:checkboxgroup(fieldset.sendEmail, true)
+                    }
+                }
+                
+                #if(request.storage.adminPanel.isStorageEnabled) {
+                    <hr>
+                    #image:round(user.avatarUrl, "profile-preview", "id='previewImage'")
+                    <div class="form-group">
+                        <label for="fileInput">Profile image</label>
+                        <input type="file" id="fileInput" accept="image/*" name="">
+                        <input type="hidden" id="hiddenFile" name="profileImage">
+                    </div>
+					
+					<h4>Or drag and drop files below</h4>
+				  <div class="upload-drop-zone" id="drop-zone">
+					Just drag and drop files here
+				  </div>
+
+                    <hr>
+                }
+                <h4 class="margin-top">
+                    Choose password
+                    <br>
+                    <small>#if(user){} ##else() {(leave empty for random password with a forced reset) }(min. 8 characters)</small>
+                </h4>
+
+                #form:passwordgroup(fieldset.password, nil)
+                #form:passwordgroup(fieldset.passwordRepeat, nil)
+                #form:checkboxgroup(fieldset.shouldResetPassword, user.shouldResetPassword)
+
+            }
+
+            #box:footer() {
+                <a href="/admin/backend/users" class="btn btn-default">Cancel</a>
+                <button type="submit" class="btn btn-primary pull-right ">#if(user) { Edit } ##else() { Create } backend user</button>
+            }
+        #form:close()
+        #box:close()
+    </div>
+</div>
+}
