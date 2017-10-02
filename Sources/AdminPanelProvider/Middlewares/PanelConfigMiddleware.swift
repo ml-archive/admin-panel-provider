@@ -52,7 +52,7 @@ public struct PanelConfig {
 public final class PanelConfigMiddleware: Middleware {
     private let config: PanelConfig
 
-    init(_ config: PanelConfig) throws {
+    public init(_ config: PanelConfig) throws {
         self.config = config
     }
 
