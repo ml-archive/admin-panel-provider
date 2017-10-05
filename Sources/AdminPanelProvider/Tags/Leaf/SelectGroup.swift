@@ -15,8 +15,20 @@ public final class SelectGroup: BasicTag {
                 throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: #form:textgroup(\"name\", \"default\", fieldset)")
         }
 
-        // Retrieve input value, value from fieldset else passed default value
-        let selected = this(fieldset?["value"]?.string, or: arguments[2]?.string)
+        // Retrieve input value(s), value(s) from fieldset else passed default value(s)
+        let selected: [String]
+
+        if let value = fieldset?["value"]?.string, !value.isEmpty {
+            selected = [value]
+        } else if let value = arguments[2]?.string, !value.isEmpty {
+            selected = [value]
+        } else if let value = fieldset?["value"]?.array {
+            selected = value.flatMap { $0.string }
+        } else if let value = arguments[2]?.array {
+            selected = value.flatMap { $0.string }
+        } else {
+            selected = []
+        }
 
         let label = fieldset?["label"]?.string ?? fieldsetPath
 
@@ -55,7 +67,7 @@ public final class SelectGroup: BasicTag {
 
         for field in fields {
             if let field = field.string {
-                template.append("<option value=\"\(field)\"\(field == selected ? " selected" : "")>\(field)</option>")
+                template.append("<option value=\"\(field)\"\(selected.contains(field) ? " selected" : "")>\(field)</option>")
             }
         }
 
