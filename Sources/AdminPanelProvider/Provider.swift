@@ -62,7 +62,7 @@ public final class Provider: Vapor.Provider {
             isStorageEnabled = false
         }
 
-        if let adminConfig = config["admin"] {
+        if let adminConfig = config["adminpanel"] {
             panelName = adminConfig["name"]?.string ?? panelName
             if
                 let userSkinConfig = adminConfig["skin"]?.string,
