@@ -139,8 +139,6 @@ public final class AdminPanelUserController {
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
-        try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
             var user: AdminPanelUser
@@ -148,6 +146,13 @@ public final class AdminPanelUserController {
                 user = try req.parameters.next(AdminPanelUser.self)
             } catch {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
+            }
+
+            let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+            let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+
+            guard allowed else {
+                throw Abort.notFound
             }
 
             // users already have a role, so we don't care if they don't/can't update it
