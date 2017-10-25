@@ -96,6 +96,9 @@ The user that will be created using the seeder will have the following credentia
 - Email: **admin@admin.com**
 - Password: **admin**
 
+### CORS:
+It's highly recommended that you add the [CORS middleware](https://docs.vapor.codes/2.0/http/cors/) to your server.
+
 ## 🔧 Configurations
 
 Admin Panel can be configured by (adding or) modifying the `adminpanel.json` config file. Below is a breakdown of the available keys.
