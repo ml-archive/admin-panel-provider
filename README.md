@@ -97,7 +97,7 @@ The user that will be created using the seeder will have the following credentia
 - Password: **admin**
 
 ### CORS:
-It's highly recommended that you add the [CORS middleware](https://docs.vapor.codes/2.0/http/cors/) to your server.
+It's highly recommended that you add the [CORS middleware](https://docs.vapor.codes/2.0/http/cors/) to your project.
 
 ## 🔧 Configurations
 
