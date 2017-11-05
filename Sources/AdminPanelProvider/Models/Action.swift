@@ -68,7 +68,7 @@ extension Action: Preparation {
 extension Action {
     public static func report(_ user: AdminPanelUser, _ message: String) {
         do {
-            let action = Action(name: user.name, userId: user.id, message: message)
+            let action = Action(name: user.name, userId: user.id?.string ?? "0", message: message)
             try action.save()
         } catch {
             // FIXME: report to bugsnag
