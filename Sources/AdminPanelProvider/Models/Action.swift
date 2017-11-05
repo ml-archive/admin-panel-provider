@@ -55,8 +55,8 @@ extension Action: Preparation {
         try database.create(self) {
             $0.id()
             $0.string("name")
-            $0.foreignId(for: AdminPanelUser.self)
             $0.string("message")
+            $0.foreignId(for: AdminPanelUser.self)
         }
     }
 
@@ -68,7 +68,7 @@ extension Action: Preparation {
 extension Action {
     public static func report(_ user: AdminPanelUser, _ message: String) {
         do {
-            let action = Action(name: user.name, userId: user.id?.string ?? "0", message: message)
+            let action = Action(name: user.name, userId: user.id ?? "0", message: message)
             try action.save()
         } catch {
             // FIXME: report to bugsnag
