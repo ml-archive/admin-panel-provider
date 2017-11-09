@@ -96,6 +96,9 @@ The user that will be created using the seeder will have the following credentia
 - Email: **admin@admin.com**
 - Password: **admin**
 
+### Custom Leaf tags
+Admin Panel comes with a bunch of custom Leaf tags that help ease the burden of frontend development. Check out the full list [here](https://github.com/nodes-vapor/admin-panel-provider/wiki/Leaf-Tags).
+
 ### CORS:
 It's highly recommended that you add the [CORS middleware](https://docs.vapor.codes/2.0/http/cors/) to your project.
 
