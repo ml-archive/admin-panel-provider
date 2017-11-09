@@ -13,4 +13,3 @@ public final class PanelRoutes: RouteCollection {
         admin.get("dashboard", handler: controller.dashboard)
     }
 }
-

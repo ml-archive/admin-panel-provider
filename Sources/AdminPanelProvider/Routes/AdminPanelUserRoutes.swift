@@ -35,5 +35,3 @@ public final class AdminPanelUserRoutes: RouteCollection {
         admin.get("backend/users/logout", handler: controller.logout)
     }
 }
-
-

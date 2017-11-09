@@ -1,5 +1,6 @@
 import FluentProvider
 
+/// An event that occured in the admin panel
 public final class Action: Model {
     public let storage = Storage()
 
