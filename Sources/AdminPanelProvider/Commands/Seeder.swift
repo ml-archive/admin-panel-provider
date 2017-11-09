@@ -1,6 +1,7 @@
 import Vapor
 import Console
 
+/// Seeds the admin panel with a default user
 public final class Seeder: Command, ConfigInitializable {
     public let id = "admin-panel:seeder"
 
