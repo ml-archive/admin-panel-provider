@@ -96,6 +96,17 @@ The user that will be created using the seeder will have the following credentia
 - Email: **admin@admin.com**
 - Password: **admin**
 
+### Vapor & Fuzzy Array
+Vapor has a `Node.fuzzy` array that's used for dynamically casting at runtime. If you're experiencing inconsistencies with rendering templates it's most likely because your fuzzy array is missing `ViewData.self` Ensure that you have added it to the array or that all of your models conform to `JSON`/`Node`.
+Example `Node.fuzzy`:
+```swift
+extension Config {
+    public func setup() throws {
+        // allow fuzzy conversions for these types
+        // (add your own types here)
+        Node.fuzzy = [JSON.self, Node.self, ViewData.self]
+```
+
 ### Custom Leaf tags
 Admin Panel comes with a bunch of custom Leaf tags that help ease the burden of frontend development. Check out the full list [here](https://github.com/nodes-vapor/admin-panel-provider/wiki/Leaf-Tags).
 
