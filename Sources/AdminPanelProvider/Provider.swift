@@ -116,16 +116,16 @@ public final class Provider: Vapor.Provider {
 
         let renderer = droplet.view
 
-        let mailgun: Mailgun?
+        let mailer: MailProtocol?
         if panelConfig.isEmailEnabled {
-            mailgun = try Mailgun(config: droplet.config)
+            mailer = droplet.mail
         } else {
-            mailgun = nil
+            mailer = nil
         }
 
         let loginController = LoginController(
             renderer: renderer,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
 
@@ -134,7 +134,7 @@ public final class Provider: Vapor.Provider {
 
         let panelRoutes = PanelRoutes(
             renderer: renderer,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
         try droplet.collection(panelRoutes)
@@ -142,7 +142,7 @@ public final class Provider: Vapor.Provider {
         let bUserRoutes = AdminPanelUserRoutes(
             renderer: renderer,
             env: droplet.config.environment,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
 

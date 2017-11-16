@@ -1,7 +1,7 @@
 import SMTP
 import Vapor
 
-extension Mailgun {
+extension MailProtocol {
     /// A convenience for rendering emails with a template engine
     public func sendEmail(
         from: String,

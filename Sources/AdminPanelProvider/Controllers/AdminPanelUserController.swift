@@ -7,18 +7,18 @@ import Storage
 public final class AdminPanelUserController {
     public let renderer: ViewRenderer
     public let env: Environment
-    public let mailgun: Mailgun?
+    public let mailer: MailProtocol?
     public let panelConfig: PanelConfig
 
     public init(
         renderer: ViewRenderer,
         env: Environment,
-        mailgun: Mailgun?,
+        mailer: MailProtocol?,
         panelConfig: PanelConfig
     ) {
         self.renderer = renderer
         self.env = env
-        self.mailgun = mailgun
+        self.mailer = mailer
         self.panelConfig = panelConfig
     }
 
@@ -96,7 +96,7 @@ public final class AdminPanelUserController {
                     context["password"] = .string(form.password)
                 }
 
-                mailgun?.sendEmail(
+                mailer?.sendEmail(
                     from: email,
                     to: user.email,
                     subject: "Welcome to Admin Panel",
