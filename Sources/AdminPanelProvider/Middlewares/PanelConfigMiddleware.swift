@@ -9,7 +9,8 @@ public struct PanelConfig {
     /// AdminLTE skin colour
     public let skin: Skin
 
-    /// Is it?
+    /// If enabled, the admin panel will send an email when new users are created
+    /// and when their passwords are reset.
     public let isEmailEnabled: Bool
     /// Sender's email address
     public let fromEmail: String?
