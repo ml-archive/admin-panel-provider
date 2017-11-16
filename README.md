@@ -117,11 +117,12 @@ It's highly recommended that you add the [CORS middleware](https://docs.vapor.co
 
 Admin Panel can be configured by (adding or) modifying the `adminpanel.json` config file. Below is a breakdown of the available keys.
 
-| Key       | Example value           | Required | Description                              |
-| --------- | ----------------------- | -------- | ---------------------------------------- |
-| `name`    | `My Tech Blog`          | No       | This will be the title inside of the admin panel. |
-| `baseUrl` | `http://mytechblog.com` | No       | This will be used to generate urls for the admin panel (e.g. when resetting a password). |
-| `skin`    | `green-light`           | No       | The skin to use for the admin panel. The options will correspond to the [available skins](https://adminlte.io/themes/AdminLTE/documentation/index.html#layout) supported by AdminLTE. Please omit the `skin-` prefix when specifying the skin. |
+| Key                | Example value                                                                          | Required | Description                                                                                                                                                                                                                                   |
+| -------------------| ---------------------------------------------------------------------------------------| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`             | `My Tech Blog`                                                                         | No       | This will be the title inside of the admin panel.                                                                                                                                                                                             |
+| `baseUrl`          | `http://mytechblog.com`                                                                | No       | This will be used to generate urls for the admin panel (e.g. when resetting a password).                                                                                                                                                      |
+| `skin`             | `green-light`                                                                          | No       | The skin to use for the admin panel. The options will correspond to the [available skins](https://adminlte.io/themes/AdminLTE/documentation/index.html#layout) supported by AdminLTE. Please omit the `skin-` prefix when specifying the skin.|
+| `email`            | `{"fromName": "Admin Panel", "fromAddress": "admin@panel.com"}`                       `| No       | This will be used to configure the AdminPanel's mailer                                                                                                                                                                                        |
 
 ### Mailgun
 

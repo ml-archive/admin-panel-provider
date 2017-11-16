@@ -25,7 +25,7 @@ public final class Provider: Vapor.Provider {
         var fromEmail: String?
         var fromName: String?
 
-        if let config = config["mailgun"] {
+        if let config = config["adminpanel", "email"] {
             guard let email = config["fromAddress"]?.string else {
                 throw ConfigError.missing(
                     key: ["fromAddress"],
