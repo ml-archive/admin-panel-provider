@@ -158,7 +158,7 @@ public final class AdminPanelUserController {
             // users already have a role, so we don't care if they don't/can't update it
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
             if hasErrors {
-                let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Validation error")
+                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/").flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
                 response.storage["_fieldset"] = fieldset
                 return response
@@ -171,7 +171,7 @@ public final class AdminPanelUserController {
             let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
             if user.shouldResetPassword {
                 guard formPasswordHash != user.password else {
-                    let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Please pick a new password")
+                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/").flash(.error, "Please pick a new password")
                     let fieldset = try form.makeNode(in: nil)
                     response.storage["_fieldset"] = fieldset
                     return response
@@ -232,7 +232,7 @@ public final class AdminPanelUserController {
 
         try user.delete()
 
-        return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.int ?? 0)/restore'>Undo</a>")
+        return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.string ?? "0")/restore'>Undo</a>")
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {

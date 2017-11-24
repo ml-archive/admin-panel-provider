@@ -73,7 +73,7 @@ extension AdminPanelUser {
 extension AdminPanelUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
-            "id": .number(.int(id?.int ?? 0)),
+            "id": .string(id?.string ?? "0"),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
@@ -86,7 +86,7 @@ extension AdminPanelUser: ViewDataRepresentable {
 extension AdminPanelUser: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         return try Node([
-            "id": Node.number(.int(id?.int ?? 0)),
+            "id": .string(id?.string ?? "0"),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
