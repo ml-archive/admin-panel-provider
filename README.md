@@ -49,6 +49,12 @@ private func setupProviders() throws {
 }
 ```
 
+Also make sure that you add the Fluent provider if it hasn't been already:
+
+```swift
+try addProvider(FluentProvider.Provider.self)
+```
+
 ### Setup view renderer
 
 This package relies heavily on the [Leaf](https://docs.vapor.codes/2.0/leaf/package/) view renderer. For Admin Panel to work, please make sure that you have added the `LeafProvider`:
@@ -90,6 +96,8 @@ Next run the seeder by doing:
 ```
 vapor build; vapor run admin-panel:seeder
 ```
+
+Alternatively you can edit the `Run` scheme temporarily by adding `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Remember to remove the argument when the user has been seeded.
 
 The user that will be created using the seeder will have the following credentials:
 
