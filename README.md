@@ -21,7 +21,7 @@ Admin Panel makes it easy to setup and maintain admin features for your Vapor pr
 Update your `Package.swift` file:
 
 ```swift
-.Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 3)
+.Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 4)
 ```
 
 Next time you run e.g. `vapor update` Admin Panel will be installed.
@@ -96,7 +96,7 @@ Next run the seeder by doing:
 vapor build; vapor run admin-panel:seeder
 ```
 
-Alternatively you can edit the `Run` scheme temporarily by adding `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Remember to remove the argument when the user has been seeded.
+Alternatively, in Xcode, you can edit the `Run` scheme temporarily by adding `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Remember to remove the argument when the user has been seeded.
 
 The user that will be created using the seeder will have the following credentials:
 
