@@ -29,7 +29,7 @@ public final class AdminPanelUserRoutes: RouteCollection {
         admin.get("backend/users/", AdminPanelUser.parameter, "edit", handler: controller.edit)
         admin.post("backend/users/", AdminPanelUser.parameter, "edit", handler: controller.update)
 
-        admin.get("backend/users/", AdminPanelUser.parameter, "delete", handler: controller.delete)
+        admin.post("backend/users/", AdminPanelUser.parameter, "delete", handler: controller.delete)
         admin.get("backend/users/", Int.parameter, "restore", handler: controller.restore)
 
         admin.get("backend/users/logout", handler: controller.logout)

@@ -70,15 +70,18 @@ public final class AdminPanelUserController {
                 avatar = path
             }
 
+            let randomPassword = form.password.isEmpty ? String.random(12) : form.password
+
             let user = try AdminPanelUser(
                 name: form.name,
                 title: form.title,
                 email: form.email,
-                password: form.password,
+                password: randomPassword,
                 role: form.role,
                 shouldResetPassword: form.shouldResetPassword,
                 avatar: avatar
             )
+
             try user.save()
 
             if
@@ -92,8 +95,8 @@ public final class AdminPanelUserController {
                     "name": .string(name)
                 ]
 
-                if form.hasRandomPassword {
-                    context["password"] = .string(form.password)
+                if !randomPassword.isEmpty {
+                    context["password"] = .string(randomPassword)
                 }
 
                 mailgun?.sendEmail(
@@ -134,7 +137,7 @@ public final class AdminPanelUserController {
             throw Abort.notFound
         }
 
-        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("AdminPanel/BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
@@ -158,7 +161,8 @@ public final class AdminPanelUserController {
             // users already have a role, so we don't care if they don't/can't update it
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
             if hasErrors {
-                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/").flash(.error, "Validation error")
+                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
                 response.storage["_fieldset"] = fieldset
                 return response

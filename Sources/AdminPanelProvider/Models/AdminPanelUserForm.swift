@@ -14,7 +14,6 @@ public struct AdminPanelUserForm {
     public let passwordRepeat: String
     public let passwordRepeatErrors: [String]
 
-    public let hasRandomPassword: Bool
     public let shouldResetPassword: Bool
     public let sendEmail: Bool
 
@@ -31,7 +30,6 @@ public struct AdminPanelUserForm {
         passwordErrors: [String] = [],
         passwordRepeat: String? = nil,
         passwordRepeatErrors: [String] = [],
-        hasRandomPassword: Bool? = nil,
         shouldResetPassword: Bool? = nil,
         sendEmail: Bool? = nil
     ) {
@@ -47,7 +45,6 @@ public struct AdminPanelUserForm {
         self.passwordErrors = passwordErrors
         self.passwordRepeat = passwordRepeat ?? ""
         self.passwordRepeatErrors = passwordRepeatErrors
-        self.hasRandomPassword = hasRandomPassword ?? false
         self.shouldResetPassword = shouldResetPassword ?? false
         self.sendEmail = sendEmail ?? false
     }
@@ -88,8 +85,6 @@ extension AdminPanelUserForm {
         passwordRepeat: String?,
         ignoreRole: Bool
     ) -> (AdminPanelUserForm, Bool) {
-        var shouldResetPassword = shouldResetPassword
-        var password = password
         var hasErrors = false
 
         var nameErrors: [String] = []
@@ -132,37 +127,25 @@ extension AdminPanelUserForm {
             hasErrors = true
         }
 
+        if let password = password, !password.isEmpty {
+            let passwordCharactercount = password.utf8.count
+            if passwordCharactercount < 8 || passwordCharactercount > 191 {
+                passwordErrors.append("Must be between 8 and 191 characters long")
+                hasErrors = true
+            }
+        }
+
+        if let passwordRepeat = passwordRepeat, !passwordRepeat.isEmpty {
+            let passwordRepeatCharacterCount = passwordRepeat.utf8.count
+            if passwordRepeatCharacterCount < 8 || passwordRepeatCharacterCount > 191 {
+                passwordRepeatErrors.append("Must be between 8 and 191 characters long")
+                hasErrors = true
+            }
+        }
+
         if password != passwordRepeat {
             passwordRepeatErrors.append("Passwords do not match")
             hasErrors = true
-        }
-
-        let hasRandomPassword = (password?.isEmpty ?? true) && (passwordRepeat?.isEmpty ?? true)
-        if hasRandomPassword {
-            password = String.random(12)
-            shouldResetPassword = true
-        } else {
-            if let password = password {
-                let passwordCharactercount = password.utf8.count
-                if passwordCharactercount < 8 || passwordCharactercount > 191 {
-                    passwordErrors.append("Must be between 8 and 191 characters long")
-                    hasErrors = true
-                }
-            } else {
-                passwordErrors.append(requiredFieldError)
-                hasErrors = true
-            }
-
-            if let passwordRepeat = passwordRepeat {
-                let passwordRepeatCharacterCount = passwordRepeat.utf8.count
-                if passwordRepeatCharacterCount < 8 || passwordRepeatCharacterCount > 191 {
-                    passwordRepeatErrors.append("Must be between 8 and 191 characters long")
-                    hasErrors = true
-                }
-            } else {
-                passwordRepeatErrors.append(requiredFieldError)
-                hasErrors = true
-            }
         }
 
         return (
@@ -179,7 +162,6 @@ extension AdminPanelUserForm {
                 passwordErrors: passwordErrors,
                 passwordRepeat: passwordRepeat,
                 passwordRepeatErrors: passwordRepeatErrors,
-                hasRandomPassword: hasRandomPassword,
                 shouldResetPassword: shouldResetPassword,
                 sendEmail: sendEmail
             ),
