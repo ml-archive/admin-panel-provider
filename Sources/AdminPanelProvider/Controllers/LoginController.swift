@@ -111,7 +111,10 @@ public final class LoginController {
         let tokenParam = try req.parameters.next(String.self)
 
         guard
-            let token = try AdminPanelUserResetToken.makeQuery().filter("token", tokenParam).first(),
+            let token = try AdminPanelUserResetToken
+                .makeQuery()
+                .filter("token", tokenParam)
+                .first(),
             token.canBeUsed
         else {
             return redirect("/admin/login").flash(.error, "Token does not exist")
