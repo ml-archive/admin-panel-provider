@@ -35,7 +35,7 @@ public final class LoginController {
 //                req.cookies.insert(
 //                    Cookie.init(
 //                        name: "rememberMe",
-//                        value: <#T##String#>,
+//                        value: String,
 //                        expires: Date().addingTimeInterval(5_184_000)
 //                    )
 //                )
@@ -75,13 +75,18 @@ public final class LoginController {
                 let email = req.data["email"]?.string,
                 let user = try AdminPanelUser.makeQuery().filter("email", email).first()
             else {
-                return redirect("/admin/login").flash(.success, "E-mail with instructions sent if user exists")
+                return redirect("/admin/login")
+                    .flash(.success, "E-mail with instructions sent if user exists")
             }
 
             try AdminPanelUserResetToken.makeQuery().filter("email", email).delete()
 
             let randomString = String.random(64)
-            let token = AdminPanelUserResetToken(email: email, token: randomString, expireAt: Date().addingTimeInterval(60*60))
+            let token = AdminPanelUserResetToken(
+                email: email,
+                token: randomString,
+                expireAt: Date().addingTimeInterval(60*60)
+            )
             try token.save()
             
             if let fromEmail = panelConfig.fromEmail {
@@ -101,7 +106,8 @@ public final class LoginController {
                 )
             }
 
-            return redirect("/admin/login").flash(.success, "E-mail with instructions sent if user exists")
+            return redirect("/admin/login")
+                .flash(.success, "E-mail with instructions sent if user exists")
         } catch {
             return redirect("/admin/login/reset").flash(.error, "An error occured")
         }
@@ -134,7 +140,10 @@ public final class LoginController {
         }
 
         guard
-            let token = try AdminPanelUserResetToken.makeQuery().filter("token", tokenParam).first(),
+            let token = try AdminPanelUserResetToken
+                .makeQuery()
+                .filter("token", tokenParam)
+                .first(),
             token.canBeUsed
         else {
             return redirect("/admin/login").flash(.error, "Token does not exist")
@@ -145,7 +154,8 @@ public final class LoginController {
         }
 
         if password != passwordRepeat {
-            return redirect("/admin/login/reset/" + tokenParam).flash(.error, "Passwords do not match")
+            return redirect("/admin/login/reset/" + tokenParam)
+                .flash(.error, "Passwords do not match")
         }
 
         guard let user = try AdminPanelUser.makeQuery().filter("email", email).first() else {
