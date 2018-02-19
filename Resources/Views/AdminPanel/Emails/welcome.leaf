@@ -6,7 +6,7 @@
     <body>
         <h4><strong>Hello</strong> #(user.name),</h4>
         <p>You have been invited to join #(name) admin panel.</p>
-        <p>The backend can be accessed here:<br><a href="#(url)">#(url)</a></p>
+        <p>The backend can be accessed here:<br><a href="#(url)/admin">#(url)</a></p>
         <p>
         You can login with following credentials:<br>
         <br>

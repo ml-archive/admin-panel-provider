@@ -43,7 +43,7 @@ public final class AdminPanelUserController {
     public func create(req: Request) throws -> ResponseRepresentable {
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
@@ -54,7 +54,8 @@ public final class AdminPanelUserController {
         do {
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
             if hasErrors {
-                let response = redirect("/admin/backend/users/create").flash(.error, "Validation error")
+                let response = redirect("/admin/backend/users/create")
+                    .flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
                 response.storage["_fieldset"] = fieldset
                 return response
@@ -92,7 +93,8 @@ public final class AdminPanelUserController {
             {
                 var context: ViewData = try [
                     "user": user.makeViewData(),
-                    "name": .string(name)
+                    "name": .string(name),
+                    "url": .string(panelConfig.baseUrl)
                 ]
 
                 if !randomPassword.isEmpty {
@@ -175,7 +177,8 @@ public final class AdminPanelUserController {
             let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
             if user.shouldResetPassword {
                 guard formPasswordHash != user.password else {
-                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/").flash(.error, "Please pick a new password")
+                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                        .flash(.error, "Please pick a new password")
                     let fieldset = try form.makeNode(in: nil)
                     response.storage["_fieldset"] = fieldset
                     return response
