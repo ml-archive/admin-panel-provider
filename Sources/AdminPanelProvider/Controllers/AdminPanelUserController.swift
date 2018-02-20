@@ -176,6 +176,28 @@ public final class AdminPanelUserController {
 
             // users already have a role, so we don't care if they don't/can't update it
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
+
+            if
+                let userByEmail = try AdminPanelUser.makeQuery().filter("email", form.email).first(),
+                userByEmail.id != user.id
+            {
+                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Validation error")
+                var fieldset = try form.makeNode(in: nil)
+
+                try fieldset.set(
+                    "email",
+                    try Node(node: [
+                        "label": "Email",
+                        "value": .string(form.email),
+                        "errors": Node(node: ["Provided email already exists."])
+                    ])
+                )
+
+                response.storage["_fieldset"] = fieldset
+                return response
+            }
+
             if hasErrors {
                 let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
                     .flash(.error, "Validation error")
