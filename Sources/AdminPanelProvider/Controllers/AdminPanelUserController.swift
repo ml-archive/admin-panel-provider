@@ -53,10 +53,24 @@ public final class AdminPanelUserController {
 
         do {
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
-            if hasErrors {
+            let isEmailUnique = try AdminPanelUser.makeQuery().filter("email", form.email).first() == nil
+
+            if hasErrors || !isEmailUnique {
                 let response = redirect("/admin/backend/users/create")
                     .flash(.error, "Validation error")
-                let fieldset = try form.makeNode(in: nil)
+                var fieldset = try form.makeNode(in: nil)
+
+                if (!isEmailUnique) {
+                    try fieldset.set(
+                        "email",
+                        try Node(node: [
+                            "label": "Email",
+                            "value": .string(form.email),
+                            "errors": Node(node: ["Provided email already exists."])
+                        ])
+                    )
+                }
+
                 response.storage["_fieldset"] = fieldset
                 return response
             }
