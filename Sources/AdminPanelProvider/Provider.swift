@@ -26,8 +26,8 @@ public final class Provider: Vapor.Provider {
         var fromName: String?
         let fileName = "adminpanel"
 
-        if let config = config[fileName] {
-            guard let email = config["email", "fromAddress"]?.string else {
+        if let config = config[fileName, "email"] {
+            guard let email = config["fromAddress"]?.string else {
                 throw ConfigError.missing(
                     key: ["fromAddress"],
                     file: fileName,
@@ -35,7 +35,7 @@ public final class Provider: Vapor.Provider {
                 )
             }
 
-            guard let name = config["email", "fromName"]?.string else {
+            guard let name = config["fromName"]?.string else {
                 throw ConfigError.missing(
                     key: ["fromName"],
                     file: fileName,
@@ -45,18 +45,18 @@ public final class Provider: Vapor.Provider {
 
             fromEmail = email
             fromName = name
+        } else {
+            print("WARNING: couldn't find `email` key in `\(fileName).json`. Email features will be disabled.")
+            isEmailEnabled = false
+        }
+
+        if let config = config[fileName] {
             panelName = config["name"]?.string ?? panelName
+            baseUrl = config["baseUrl"]?.string ?? baseUrl
 
             if let userSkinConfig = config["skin"]?.string {
                 skin = PanelConfig.Skin(rawValue: userSkinConfig) ?? skin
             }
-
-            if let url = config["baseUrl"]?.string {
-                baseUrl = url
-            }
-        } else {
-            print("WARNING: couldn't find `\(fileName).json`. Email features will be disabled.")
-            isEmailEnabled = false
         }
 
         if config["storage"] != nil {
