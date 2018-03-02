@@ -69,7 +69,7 @@ private func setupProviders() throws {
 }
 ```
 
-Make sure your project is using Leaf as the view renderer. You can set leaf as your renderer by setting the key `view` to the value `leaf` in your `droplet.json`. Just add it, in case it's not given yet:
+Make sure your project is using Leaf as the view renderer. You can set leaf as your renderer by setting the key `view` to the value `leaf` in your `droplet.json`. In case it's not given yet, just add it:
 
 ```json
 "//": "Choose which view renderer to use",
