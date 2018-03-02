@@ -24,29 +24,38 @@ public final class Provider: Vapor.Provider {
         var isStorageEnabled = true
         var fromEmail: String?
         var fromName: String?
+        let fileName = "adminpanel"
 
-        if let config = config["adminpanel", "email"] {
-            guard let email = config["fromAddress"]?.string else {
+        if let config = config[fileName] {
+            guard let email = config["email", "fromAddress"]?.string else {
                 throw ConfigError.missing(
                     key: ["fromAddress"],
-                    file: "mailgun",
+                    file: fileName,
+                    desiredType: String.self
+                )
+            }
+
+            guard let name = config["email", "fromName"]?.string else {
+                throw ConfigError.missing(
+                    key: ["fromName"],
+                    file: fileName,
                     desiredType: String.self
                 )
             }
 
             fromEmail = email
+            fromName = name
+            panelName = config["name"]?.string ?? panelName
 
-            guard let name = config["fromName"]?.string else {
-                throw ConfigError.missing(
-                    key: ["fromName"],
-                    file: "mailgun",
-                    desiredType: String.self
-                )
+            if let userSkinConfig = config["skin"]?.string {
+                skin = PanelConfig.Skin(rawValue: userSkinConfig) ?? skin
             }
 
-            fromName = name
+            if let url = config["baseUrl"]?.string {
+                baseUrl = url
+            }
         } else {
-            print("WARNING: couldn't find `mailgun.json`. Email features will be disabled.")
+            print("WARNING: couldn't find `\(fileName).json`. Email features will be disabled.")
             isEmailEnabled = false
         }
 
@@ -60,20 +69,6 @@ public final class Provider: Vapor.Provider {
         } else {
             print("WARNING: couldn't find `storage.json`. Image uploads will be disabled.")
             isStorageEnabled = false
-        }
-
-        if let adminConfig = config["adminpanel"] {
-            panelName = adminConfig["name"]?.string ?? panelName
-            if
-                let userSkinConfig = adminConfig["skin"]?.string,
-                let userSkin = PanelConfig.Skin(rawValue: userSkinConfig)
-            {
-                skin = userSkin
-            }
-
-            if let url = adminConfig["baseUrl"]?.string {
-                baseUrl = url
-            }
         }
 
         let panelConfig = PanelConfig(
