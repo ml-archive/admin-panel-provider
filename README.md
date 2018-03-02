@@ -79,7 +79,7 @@ Make sure your project is using Leaf as the view renderer. You can set leaf as y
 
 ### Seed a user
 
-If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, first add the seeder command to your `commands` array in your `droplet.json`:
+If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, add the seeder command to your `commands` array in your `droplet.json`:
 
 ```json
 "//": "Choose which commands this application can run",
@@ -89,14 +89,13 @@ If you haven't added a SSO provider, the next thing you need to do is to seed a 
     "admin-panel:seeder"
 ],
 ```
-
-Next run the seeder by doing:
+Now you have two ways of running the seeder. You either run the seeder in your terminal by:
 
 ```
 vapor build; vapor run admin-panel:seeder
 ```
 
-Alternatively, in Xcode, you can edit the `Run` scheme temporarily by adding `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Remember to remove the argument when the user has been seeded.
+Or you temporarily edit the `Run` scheme in Xcode and add `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Run the project and remove the argument after the user has been seeded.
 
 The user that will be created using the seeder will have the following credentials:
 
