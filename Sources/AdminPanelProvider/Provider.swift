@@ -24,30 +24,39 @@ public final class Provider: Vapor.Provider {
         var isStorageEnabled = true
         var fromEmail: String?
         var fromName: String?
+        let fileName = "adminpanel"
 
-        if let config = config["mailgun"] {
+        if let config = config[fileName, "email"] {
             guard let email = config["fromAddress"]?.string else {
                 throw ConfigError.missing(
                     key: ["fromAddress"],
-                    file: "mailgun",
+                    file: fileName,
+                    desiredType: String.self
+                )
+            }
+
+            guard let name = config["fromName"]?.string else {
+                throw ConfigError.missing(
+                    key: ["fromName"],
+                    file: fileName,
                     desiredType: String.self
                 )
             }
 
             fromEmail = email
-
-            guard let name = config["fromName"]?.string else {
-                throw ConfigError.missing(
-                    key: ["fromName"],
-                    file: "mailgun",
-                    desiredType: String.self
-                )
-            }
-
             fromName = name
         } else {
-            print("WARNING: couldn't find `mailgun.json`. Email features will be disabled.")
+            print("WARNING: couldn't find `email` key in `\(fileName).json`. Email features will be disabled.")
             isEmailEnabled = false
+        }
+
+        if let config = config[fileName] {
+            panelName = config["name"]?.string ?? panelName
+            baseUrl = config["baseUrl"]?.string ?? baseUrl
+
+            if let userSkinConfig = config["skin"]?.string {
+                skin = PanelConfig.Skin(rawValue: userSkinConfig) ?? skin
+            }
         }
 
         if config["storage"] != nil {
@@ -60,20 +69,6 @@ public final class Provider: Vapor.Provider {
         } else {
             print("WARNING: couldn't find `storage.json`. Image uploads will be disabled.")
             isStorageEnabled = false
-        }
-
-        if let adminConfig = config["adminpanel"] {
-            panelName = adminConfig["name"]?.string ?? panelName
-            if
-                let userSkinConfig = adminConfig["skin"]?.string,
-                let userSkin = PanelConfig.Skin(rawValue: userSkinConfig)
-            {
-                skin = userSkin
-            }
-
-            if let url = adminConfig["baseUrl"]?.string {
-                baseUrl = url
-            }
         }
 
         let panelConfig = PanelConfig(
@@ -116,16 +111,16 @@ public final class Provider: Vapor.Provider {
 
         let renderer = droplet.view
 
-        let mailgun: Mailgun?
+        let mailer: MailProtocol?
         if panelConfig.isEmailEnabled {
-            mailgun = try Mailgun(config: droplet.config)
+            mailer = droplet.mail
         } else {
-            mailgun = nil
+            mailer = nil
         }
 
         let loginController = LoginController(
             renderer: renderer,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
 
@@ -134,7 +129,7 @@ public final class Provider: Vapor.Provider {
 
         let panelRoutes = PanelRoutes(
             renderer: renderer,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
         try droplet.collection(panelRoutes)
@@ -142,7 +137,7 @@ public final class Provider: Vapor.Provider {
         let bUserRoutes = AdminPanelUserRoutes(
             renderer: renderer,
             env: droplet.config.environment,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
 

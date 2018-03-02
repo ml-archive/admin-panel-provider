@@ -22,66 +22,11 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <body class="hold-transition login-page">
-<style>
-#()alternative-login {
-	width: 10px;
-	height: 10px;
-	position: absolute;
-	top: 0;
-	right: 0;
-	background: linear-gradient(225deg, transparent 40%, #()f3f3f3 50%, #()ccc 50%, #()bbb 50%, #()ddd 62%, #()f3f3f3 80%, #()fff 100%), #()f3f3f3 url("../images/nodes.png") top right no-repeat;
-	background-size: auto, 62px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-	transition: all .35s ease;
-	z-index: 100
-}
-
-#()alternative-login:before, #()alternative-login:after {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    left: 12.5%;
-    bottom: 5.8%;
-    width: 70%;
-    max-width: 100px;
-    max-height: 80px;
-    height: 55%;
-    box-shadow: 0 12px 15px rgba(0, 0, 0, 0.3);
-    transform: skew(10deg) rotate(6deg)
-}
-
-#()alternative-login:after {
-    left: auto;
-    right: 5.8%;
-    bottom: auto;
-    top: 14.16%;
-    transform: skew(-15deg) rotate(-84deg)
-}
-
-#()alternative-login:hover {
-    width: 80px;
-    height: 80px
-}
-
-#()alternative-login:hover:before, #()alternative-login:hover:after {
-    box-shadow: 0 14px 20px rgba(0, 0, 0, 0.3)
-}
-
-</style>
 <div class="login-box">
   <div class="login-logo">
       <b>#(request.storage.adminPanel.name)</b>
   </div>
-  <!-- /.login-logo -->
-  <div class="login-box-body">
-    #if(request.storage.adminPanel.sso.nodes) {
-    <a href="#(request.storage.adminPanel.sso.nodes.loginPath)" id="alternative-login" class="sso">
-      <span class="sr-only">Nodes SSO</span>
-    </a>
-    }
-    <!-- ./sso -->
-
-    <p class="login-box-msg">Sign in to start your session</p>
+  <p class="login-box-msg">Sign in to start your session</p>
     #embed("AdminPanel/Layout/Partials/alerts")
     <form method="POST" action="/admin/login?next=#(next)">
       <div class="form-group has-feedback">

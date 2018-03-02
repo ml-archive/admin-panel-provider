@@ -102,6 +102,20 @@ The user that will be created using the seeder will have the following credentia
 - Email: **admin@admin.com**
 - Password: **admin**
 
+### Vapor & Fuzzy Array
+Vapor has a `Node.fuzzy` array that's used for dynamically casting at runtime. If you're experiencing inconsistencies with rendering templates it's most likely because your fuzzy array is missing `ViewData.self` Ensure that you have added it to the array or that all of your models conform to `JSON`/`Node`.
+Example `Node.fuzzy`:
+```swift
+extension Config {
+    public func setup() throws {
+        // allow fuzzy conversions for these types
+        // (add your own types here)
+        Node.fuzzy = [JSON.self, Node.self, ViewData.self]
+```
+
+### Custom Leaf tags
+Admin Panel comes with a bunch of custom Leaf tags that help ease the burden of frontend development. Check out the full list [here](https://github.com/nodes-vapor/admin-panel-provider/wiki/Leaf-Tags).
+
 ### CORS:
 It's highly recommended that you add the [CORS middleware](https://docs.vapor.codes/2.0/http/cors/) to your project.
 
@@ -109,15 +123,13 @@ It's highly recommended that you add the [CORS middleware](https://docs.vapor.co
 
 Admin Panel can be configured by (adding or) modifying the `adminpanel.json` config file. Below is a breakdown of the available keys.
 
-| Key       | Example value           | Required | Description                              |
-| --------- | ----------------------- | -------- | ---------------------------------------- |
-| `name`    | `My Tech Blog`          | No       | This will be the title inside of the admin panel. |
-| `baseUrl` | `http://mytechblog.com` | No       | This will be used to generate urls for the admin panel (e.g. when resetting a password). |
-| `skin`    | `green-light`           | No       | The skin to use for the admin panel. The options will correspond to the [available skins](https://adminlte.io/themes/AdminLTE/documentation/index.html#layout) supported by AdminLTE. Please omit the `skin-` prefix when specifying the skin. |
+| Key                | Example value                                                                          | Required | Description                                                                                                                                                                                                                                   |
+| -------------------| ---------------------------------------------------------------------------------------| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`             | `My Tech Blog`                                                                         | No       | This will be the title inside of the admin panel.                                                                                                                                                                                             |
+| `baseUrl`          | `http://mytechblog.com`                                                                | No       | This will be used to generate urls for the admin panel (e.g. when resetting a password).                                                                                                                                                      |
+| `skin`             | `green-light`                                                                          | No       | The skin to use for the admin panel. The options will correspond to the [available skins](https://adminlte.io/themes/AdminLTE/documentation/index.html#layout) supported by AdminLTE. Please omit the `skin-` prefix when specifying the skin.|
+| `email`            | `{"fromName": "Admin Panel", "fromAddress": "admin@panel.com"}`                       `| No       | This will be used to configure the AdminPanel's mailer.                                                                                                                                                                                        |
 
-### Mailgun
-
-To support sending password reset emails, configure Mailgun using `mailgun.json`. In addition to the values for `key` and `domain`, AdminPanelProvider requires a value for the key `fromAddress` and `fromName` which will be used as the sender for password reset emails.
 
 ## 🔐 SSO
 

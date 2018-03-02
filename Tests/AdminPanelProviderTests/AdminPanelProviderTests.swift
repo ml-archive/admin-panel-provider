@@ -19,13 +19,12 @@ class AdminPanelProviderTests: XCTestCase {
         )
         let controller = LoginController(
             renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"),
-            mailgun: nil,
+            mailer: nil,
             panelConfig: config
         )
         let response = try controller.landing(
             req: Request(method: .get, uri: "/")
         )
-        print("")
     }
 }
 

@@ -1,6 +1,7 @@
 import HTTP
 import Vapor
 
+/// Gates content according to a user's role
 public class Gate {
     public enum Role: Int {
         case superAdmin
@@ -18,10 +19,12 @@ public class Gate {
         }
     }
 
+    /// Returns whether or not a given role has more than or equal permissions than required
     public static func allow(_ role: Role, requiredRole: Role) -> Bool {
         return role.rawValue <= requiredRole.rawValue
     }
 
+    /// Returns whether or not a given role has more than or equal permissions than required
     public static func allow(_ role: String, requiredRole: String) -> Bool {
         guard let role = Role.init(from: role), let requiredRole = Role.init(from: requiredRole) else {
             return false
@@ -30,11 +33,13 @@ public class Gate {
         return allow(role, requiredRole: requiredRole)
     }
 
+    /// Returns whether or not a given user has more than or equal permissions than required
     public static func allow(_ user: AdminPanelUser, requiredRole: Role) -> Bool {
         guard let role = Role.init(from: user.role) else { return false }
         return allow(role, requiredRole: requiredRole)
     }
 
+    /// Throws if a user doesn't have equal or more permissions than required
     public static func assertAllowed(_ user: AdminPanelUser, requiredRole: Role) throws {
         guard allow(user, requiredRole: requiredRole) else {
             // Don't show them this endpoint exists

@@ -1,14 +1,23 @@
 import Vapor
 
+/// AdminPanel's configuration
 public struct PanelConfig {
+    /// Name to use for emails and the site's logo
     public let panelName: String
+    /// Base URL of the admin panel
     public let baseUrl: String
+    /// AdminLTE skin colour
     public let skin: Skin
 
+    /// If enabled, the admin panel will send an email when new users are created
+    /// and when their passwords are reset.
     public let isEmailEnabled: Bool
+    /// Sender's email address
     public let fromEmail: String?
+    /// Sender's name
     public let fromName: String?
 
+    /// Whether or not Storage (nodes-vapor/storage) is enabled for file uploads
     public let isStorageEnabled: Bool
 
     public init(
@@ -29,6 +38,7 @@ public struct PanelConfig {
         self.fromName = fromName
     }
 
+    /// AdminLTE-supported skins
     public enum Skin: String {
         case blue
         case blueLight = "blue-light"
@@ -43,6 +53,7 @@ public struct PanelConfig {
         case black
         case blackLight = "black-light"
 
+        /// The CSS class name equivalent
         public var cssClass: String {
             return "skin-\(self.rawValue)"
         }

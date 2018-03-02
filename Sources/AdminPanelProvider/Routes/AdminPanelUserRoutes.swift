@@ -7,13 +7,13 @@ public final class AdminPanelUserRoutes: RouteCollection {
     public init(
         renderer: ViewRenderer,
         env: Environment,
-        mailgun: Mailgun?,
+        mailer: MailProtocol?,
         panelConfig: PanelConfig
     ) {
         controller = AdminPanelUserController(
             renderer: renderer,
             env: env,
-            mailgun: mailgun,
+            mailer: mailer,
             panelConfig: panelConfig
         )
     }
@@ -35,5 +35,3 @@ public final class AdminPanelUserRoutes: RouteCollection {
         admin.get("backend/users/logout", handler: controller.logout)
     }
 }
-
-

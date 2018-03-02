@@ -4,16 +4,16 @@ import AuthProvider
 
 public final class LoginController {
     public let renderer: ViewRenderer
-    public let mailgun: Mailgun?
+    public let mailer: MailProtocol?
     public let panelConfig: PanelConfig
 
     public init(
         renderer: ViewRenderer,
-        mailgun: Mailgun?,
+        mailer: MailProtocol?,
         panelConfig: PanelConfig
     ) {
         self.renderer = renderer
-        self.mailgun = mailgun
+        self.mailer = mailer
         self.panelConfig = panelConfig
     }
 
@@ -90,7 +90,7 @@ public final class LoginController {
             try token.save()
             
             if let fromEmail = panelConfig.fromEmail {
-                mailgun?.sendEmail(
+                mailer?.sendEmail(
                     from: fromEmail,
                     to: email,
                     subject: "Reset password",
