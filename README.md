@@ -28,7 +28,7 @@ Next time you run e.g. `vapor update` Admin Panel will be installed.
 
 ### Install resources
 
-Move the `Resources`and `Public` folders from this repo into your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
+Copy the `Resources` and `Public` folders from this repo into your project. You can download the repo as a zip and then move the folders to the root of your project. Remember to check that you're not overwriting any files in your project.
 
 
 ## 🚀 Getting started
