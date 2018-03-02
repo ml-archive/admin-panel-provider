@@ -5,12 +5,12 @@ public final class Action: Model {
     public let storage = Storage()
 
     public var name: String
-    public let userId: Int
+    public let userId: Identifier
     public let message: String
 
     public init(
         name: String,
-        userId: Int,
+        userId: Identifier,
         message: String
     ) {
         self.name = name
@@ -56,8 +56,8 @@ extension Action: Preparation {
         try database.create(self) {
             $0.id()
             $0.string("name")
-            $0.int("userId")
             $0.string("message")
+            $0.foreignId(for: AdminPanelUser.self)
         }
     }
 
@@ -69,7 +69,7 @@ extension Action: Preparation {
 extension Action {
     public static func report(_ user: AdminPanelUser, _ message: String) {
         do {
-            let action = Action(name: user.name, userId: user.id?.int ?? 0, message: message)
+            let action = Action(name: user.name, userId: user.id ?? "0", message: message)
             try action.save()
         } catch {
             // FIXME: report to bugsnag

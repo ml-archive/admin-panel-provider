@@ -44,7 +44,7 @@ public final class AdminPanelUser: Model {
         email = try row.get("email")
         password = try row.get("password")
         role = try row.get("role")
-        shouldResetPassword = try row.get("shouldResetPassword")
+        shouldResetPassword = try row.get(AdminPanelUser.shouldResetPasswordKey)
         avatar = row["avatar"]?.string
     }
 
@@ -56,7 +56,7 @@ public final class AdminPanelUser: Model {
         try row.set("email", email)
         try row.set("password", password)
         try row.set("role", role)
-        try row.set("shouldResetPassword", shouldResetPassword)
+        try row.set(AdminPanelUser.shouldResetPasswordKey, shouldResetPassword)
         try row.set("avatar", avatar)
 
         return row
@@ -73,7 +73,7 @@ extension AdminPanelUser {
 extension AdminPanelUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
-            "id": .number(.int(id?.int ?? 0)),
+            "id": .string(id?.string ?? "0"),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
@@ -86,7 +86,7 @@ extension AdminPanelUser: ViewDataRepresentable {
 extension AdminPanelUser: NodeRepresentable {
     public func makeNode(in context: Context?) throws -> Node {
         return try Node([
-            "id": Node.number(.int(id?.int ?? 0)),
+            "id": .string(id?.string ?? "0"),
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
@@ -109,7 +109,7 @@ extension AdminPanelUser: Preparation {
             $0.string("email")
             $0.string("password")
             $0.string("role")
-            $0.bool("shouldResetPassword")
+            $0.bool(AdminPanelUser.shouldResetPasswordKey)
             $0.string("avatar", optional: true)
         }
     }
@@ -135,3 +135,19 @@ extension AdminPanelUser: AuditCustomDescribable {
         return "User"
     }
 }
+
+// MARK: - Column Names in Database
+extension AdminPanelUser {
+
+    /// Should Reset Password Key
+    static var shouldResetPasswordKey: String {
+        switch keyNamingConvention {
+        case .camelCase:
+            return "shouldResetPassword"
+        case .snake_case:
+            return "should_reset_password"
+        }
+    }
+
+}
+

@@ -43,7 +43,7 @@ public final class AdminPanelUserController {
     public func create(req: Request) throws -> ResponseRepresentable {
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
@@ -53,9 +53,24 @@ public final class AdminPanelUserController {
 
         do {
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
-            if hasErrors {
-                let response = redirect("/admin/backend/users/create").flash(.error, "Validation error")
-                let fieldset = try form.makeNode(in: nil)
+            let isEmailUnique = try AdminPanelUser.makeQuery().filter("email", form.email).first() == nil
+
+            if hasErrors || !isEmailUnique {
+                let response = redirect("/admin/backend/users/create")
+                    .flash(.error, "Validation error")
+                var fieldset = try form.makeNode(in: nil)
+
+                if (!isEmailUnique) {
+                    try fieldset.set(
+                        "email",
+                        try Node(node: [
+                            "label": "Email",
+                            "value": .string(form.email),
+                            "errors": Node(node: ["Provided email already exists."])
+                        ])
+                    )
+                }
+
                 response.storage["_fieldset"] = fieldset
                 return response
             }
@@ -70,15 +85,18 @@ public final class AdminPanelUserController {
                 avatar = path
             }
 
+            let randomPassword = form.password.isEmpty ? String.random(12) : form.password
+
             let user = try AdminPanelUser(
                 name: form.name,
                 title: form.title,
                 email: form.email,
-                password: form.password,
+                password: randomPassword,
                 role: form.role,
                 shouldResetPassword: form.shouldResetPassword,
                 avatar: avatar
             )
+
             try user.save()
 
             if
@@ -89,11 +107,12 @@ public final class AdminPanelUserController {
             {
                 var context: ViewData = try [
                     "user": user.makeViewData(),
-                    "name": .string(name)
+                    "name": .string(name),
+                    "url": .string(panelConfig.baseUrl)
                 ]
 
-                if form.hasRandomPassword {
-                    context["password"] = .string(form.password)
+                if !randomPassword.isEmpty {
+                    context["password"] = .string(randomPassword)
                 }
 
                 mailer?.sendEmail(
@@ -134,7 +153,7 @@ public final class AdminPanelUserController {
             throw Abort.notFound
         }
 
-        let fieldset = try req.storage["_fieldset"] as? Node ??  AdminPanelUserForm().makeNode(in: nil)
+        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("AdminPanel/BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
     }
 
@@ -157,8 +176,31 @@ public final class AdminPanelUserController {
 
             // users already have a role, so we don't care if they don't/can't update it
             let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
+
+            if
+                let userByEmail = try AdminPanelUser.makeQuery().filter("email", form.email).first(),
+                userByEmail.id != user.id
+            {
+                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Validation error")
+                var fieldset = try form.makeNode(in: nil)
+
+                try fieldset.set(
+                    "email",
+                    try Node(node: [
+                        "label": "Email",
+                        "value": .string(form.email),
+                        "errors": Node(node: ["Provided email already exists."])
+                    ])
+                )
+
+                response.storage["_fieldset"] = fieldset
+                return response
+            }
+
             if hasErrors {
-                let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Validation error")
+                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Validation error")
                 let fieldset = try form.makeNode(in: nil)
                 response.storage["_fieldset"] = fieldset
                 return response
@@ -171,7 +213,8 @@ public final class AdminPanelUserController {
             let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
             if user.shouldResetPassword {
                 guard formPasswordHash != user.password else {
-                    let response = redirect("/admin/backend/users/\(user.id?.int ?? 0)/edit/").flash(.error, "Please pick a new password")
+                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                        .flash(.error, "Please pick a new password")
                     let fieldset = try form.makeNode(in: nil)
                     response.storage["_fieldset"] = fieldset
                     return response
@@ -232,7 +275,7 @@ public final class AdminPanelUserController {
 
         try user.delete()
 
-        return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.int ?? 0)/restore'>Undo</a>")
+        return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.string ?? "0")/restore'>Undo</a>")
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
