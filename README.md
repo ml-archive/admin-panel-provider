@@ -28,7 +28,7 @@ Next time you run e.g. `vapor update` Admin Panel will be installed.
 
 ### Install resources
 
-Move the `Resources`and `Public` folders from this repo into your project. Unfortunately there's no convenient to this at the moment, but one option is to download this repo as a zip and then move the folders into the root of your project. Remember to check that you're not overwriting any files in your project.
+Copy the `Resources` and `Public` folders from this repo into your project. You can download the repo as a zip and then move the folders to the root of your project. Remember to check that you're not overwriting any files in your project.
 
 
 ## 🚀 Getting started
@@ -69,17 +69,17 @@ private func setupProviders() throws {
 }
 ```
 
-After adding the provider, please make sure that your project is using Leaf as the view renderer. To do that, please ensure that the `view` key is set correctly in `droplet.json`:
+Make sure your project is using Leaf as the view renderer. You can set leaf as your renderer by setting the key `view` to the value `leaf` in your `droplet.json`. In case it's not given yet, just add it:
 
 ```json
 "//": "Choose which view renderer to use",
 "//": "leaf: Vapor's Leaf renderer",
-"view": "leaf"
+"view": "leaf",
 ```
 
 ### Seed a user
 
-If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, first add the seeder command to your `commands` array in your `droplet.json`:
+If you haven't added a SSO provider, the next thing you need to do is to seed a user in order to be able to login into your new admin panel. To do this, add the seeder command to your `commands` array in your `droplet.json`:
 
 ```json
 "//": "Choose which commands this application can run",
@@ -89,14 +89,13 @@ If you haven't added a SSO provider, the next thing you need to do is to seed a 
     "admin-panel:seeder"
 ],
 ```
-
-Next run the seeder by doing:
+Now you have two ways of running the seeder. You either run the seeder in your terminal by:
 
 ```
 vapor build; vapor run admin-panel:seeder
 ```
 
-Alternatively, in Xcode, you can edit the `Run` scheme temporarily by adding `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Remember to remove the argument when the user has been seeded.
+Or you temporarily edit the `Run` scheme in Xcode and add `admin-panel:seeder` under "Arguments Passed On Launch". This will run the seeder when you run the project. Run the project and remove the argument after the user has been seeded.
 
 The user that will be created using the seeder will have the following credentials:
 
