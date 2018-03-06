@@ -49,7 +49,10 @@ Next time you run e.g. `vapor update` Admin Panel will be installed.
 
 Copy the `Resources` and `Public` folders from this repo into your project. You can download the repo as a zip and then move the folders to the root of your project. Remember to check that you're not overwriting any files in your project.
 
-
+If you are using [meta](https://github.com/nodes-vapor/meta) don't forget to add the following paths to the `exceptPaths` array within `meta.json`:
+- `"/bootstrap/*"`
+- `"/dist/*"`
+- `"/plugins/*"`
 ## 🚀 Getting started
 
 ### Add provider
