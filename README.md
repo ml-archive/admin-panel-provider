@@ -20,8 +20,27 @@ Admin Panel makes it easy to setup and maintain admin features for your Vapor pr
 
 Update your `Package.swift` file:
 
+#### Swift 3
+
 ```swift
 .Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 4)
+```
+#### Swift 4
+
+```swift
+.package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.4.0")),
+```
+```swift
+targets: [
+    .target(
+        name: "App",
+        dependencies: [
+            ...
+            "AdminPanelProvider"
+        ]
+    ),
+    ...
+]
 ```
 
 Next time you run e.g. `vapor update` Admin Panel will be installed.
