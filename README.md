@@ -23,12 +23,12 @@ Update your `Package.swift` file:
 #### Swift 3
 
 ```swift
-.Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 4)
+.Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 6)
 ```
 #### Swift 4
 
 ```swift
-.package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.4.0")),
+.package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.6.0")),
 ```
 ```swift
 targets: [
@@ -50,7 +50,7 @@ Next time you run e.g. `vapor update` Admin Panel will be installed.
 Copy the `Resources` and `Public` folders from this repo into your project. You can download the repo as a zip and then move the folders to the root of your project. Remember to check that you're not overwriting any files in your project.
 
 If you are using [Meta](https://github.com/nodes-vapor/meta) don't forget to add the following paths to the `exceptPaths` array within `meta.json`:
-- `"/bootstrap/*"`
+- `"/bower_components/*"`
 - `"/dist/*"`
 - `"/plugins/*"`
 
