@@ -53,6 +53,8 @@
 <script src="/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 <!-- ChartJS -->
 <script src="/bower_components/chart.js/Chart.js"></script>
+<!-- Bootbox -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js">
 
 <script src="/dist/js/adminlte.min.js"></script>
 <script src="/dist/js/admin-panel.js"></script>
