@@ -148,16 +148,7 @@ public final class AdminPanelUserController {
 
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
 
-        guard
-            let userRole = Gate.Role(from: user.role),
-            let requestingUserRole = Gate.Role(from: requestingUser.role)
-        else {
-            throw Abort(.internalServerError, reason: "Could not find provided roles")
-        }
-
-        /// requesting user can only edit if his role is equal or lower in `Int`-Representation
-        /// superAdmin = 0, admin = 1, user = 2
-        let allowed = userRole.rawValue >= requestingUserRole.rawValue || requestingUser.id == user.id
+        let allowed = Gate.allow(requestingUser.role, requiredRole: user.role) || requestingUser.id == user.id
         guard allowed else {
             return redirect("/admin/backend/users")
                 .flash(.error, "Cannot edit user with a higher role.")
@@ -279,16 +270,7 @@ public final class AdminPanelUserController {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        guard
-            let userRole = Gate.Role(from: user.role),
-            let requestingUserRole = Gate.Role(from: requestingUser.role)
-        else {
-            throw Abort(.internalServerError, reason: "Could not find provided roles")
-        }
-
-        /// requesting user can only edit if his role is equal or lower in `Int`-Representation
-        /// superAdmin = 0, admin = 1, user = 2
-        let allowed = userRole.rawValue >= requestingUserRole.rawValue
+        let allowed = Gate.allow(requestingUser.role, requiredRole: user.role)
         guard allowed else {
             return redirect("/admin/backend/users")
                 .flash(.error, "Cannot delete user with a higher role.")
