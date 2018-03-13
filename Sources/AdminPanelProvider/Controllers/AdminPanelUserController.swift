@@ -147,10 +147,20 @@ public final class AdminPanelUserController {
         }
 
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
-        let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
+        guard
+            let userRole = Gate.Role(from: user.role),
+            let requestingUserRole = Gate.Role(from: requestingUser.role)
+        else {
+            throw Abort(.internalServerError, reason: "Could not find provided roles")
+        }
+
+        /// requesting user can only edit if his role is equal or lower in `Int`-Representation
+        /// superAdmin = 0, admin = 1, user = 2
+        let allowed = userRole.rawValue >= requestingUserRole.rawValue || requestingUser.id == user.id
         guard allowed else {
-            throw Abort.notFound
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot edit user with a higher role.")
         }
 
         let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
@@ -267,6 +277,21 @@ public final class AdminPanelUserController {
             user = try req.parameters.next(AdminPanelUser.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
+        }
+
+        guard
+            let userRole = Gate.Role(from: user.role),
+            let requestingUserRole = Gate.Role(from: requestingUser.role)
+        else {
+            throw Abort(.internalServerError, reason: "Could not find provided roles")
+        }
+
+        /// requesting user can only edit if his role is equal or lower in `Int`-Representation
+        /// superAdmin = 0, admin = 1, user = 2
+        let allowed = userRole.rawValue >= requestingUserRole.rawValue
+        guard allowed else {
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot delete user with a higher role.")
         }
 
         guard user.id != requestingUser.id else {
