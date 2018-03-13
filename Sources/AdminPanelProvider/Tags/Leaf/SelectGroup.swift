@@ -12,7 +12,7 @@ public final class SelectGroup: BasicTag {
             case .variable(let fieldsetPathNodes, value: let fieldset) = arguments.list[1],
             let fieldsetPath = fieldsetPathNodes.last
             else {
-                throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: #form:textgroup(\"name\", \"default\", fieldset)")
+                throw Abort(.internalServerError, reason: "FormSelectGroup parse error, expecting: #form:selectgroup(\"name\", \"default\", fieldset)")
         }
 
         // Retrieve input value(s), value(s) from fieldset else passed default value(s)
@@ -57,7 +57,7 @@ public final class SelectGroup: BasicTag {
             } else if let attrStr = attributesNode.string {
                 attributes = attrStr.components(separatedBy: ",")
             } else {
-                throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: an array or comma separated list of custom attributes")
+                throw Abort(.internalServerError, reason: "FormSelectGroup parse error, expecting: an array or comma separated list of custom attributes")
             }
 
             template.append(contentsOf: attributes)
