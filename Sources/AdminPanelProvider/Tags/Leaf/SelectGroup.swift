@@ -11,8 +11,8 @@ public final class SelectGroup: BasicTag {
             let fields = arguments[0]?.array,
             case .variable(let fieldsetPathNodes, value: let fieldset) = arguments.list[1],
             let fieldsetPath = fieldsetPathNodes.last
-            else {
-                throw Abort(.internalServerError, reason: "FormSelectGroup parse error, expecting: #form:selectgroup(\"name\", \"default\", fieldset)")
+        else {
+            throw Abort(.internalServerError, reason: "FormSelectGroup parse error, expecting: #form:selectgroup(options, fieldsetNode, defaultValue)")
         }
 
         // Retrieve input value(s), value(s) from fieldset else passed default value(s)
@@ -63,7 +63,7 @@ public final class SelectGroup: BasicTag {
             template.append(contentsOf: attributes)
         }
 
-        template.append("/>")
+        template.append(">")
 
         for field in fields {
             if let field = field.string {
