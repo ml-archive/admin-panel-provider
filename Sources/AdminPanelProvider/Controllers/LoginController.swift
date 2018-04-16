@@ -42,6 +42,10 @@ public final class LoginController {
     }
 
     public func landing(req: Request) throws -> ResponseRepresentable {
+        guard !req.auth.isAuthenticated(AdminPanelUser.self) else {
+            return redirect("/admin/dashboard")
+        }
+
         let next = req.query?["next"]
 
         return try renderer.make(
