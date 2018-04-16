@@ -28,18 +28,7 @@ public final class LoginController {
 
             let credentials = Password(username: username, password: password)
             let user = try AdminPanelUser.authenticate(credentials)
-
-            let shouldPersist = req.data["rememberMe"] != nil
-            try req.auth.authenticate(user, persist: shouldPersist)
-            if shouldPersist {
-//                req.cookies.insert(
-//                    Cookie.init(
-//                        name: "rememberMe",
-//                        value: String,
-//                        expires: Date().addingTimeInterval(5_184_000)
-//                    )
-//                )
-            }
+            try req.auth.authenticate(user, persist: true)
 
             var redir = "/admin/dashboard"
             if let next = req.query?["next"]?.string, !next.isEmpty {
