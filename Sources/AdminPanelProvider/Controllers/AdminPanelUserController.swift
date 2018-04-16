@@ -147,10 +147,11 @@ public final class AdminPanelUserController {
         }
 
         let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
-        let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
+        let allowed = Gate.allow(requestingUser.role, requiredRole: user.role) || requestingUser.id == user.id
         guard allowed else {
-            throw Abort.notFound
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot edit user with a higher role.")
         }
 
         let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
@@ -267,6 +268,12 @@ public final class AdminPanelUserController {
             user = try req.parameters.next(AdminPanelUser.self)
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
+        }
+
+        let allowed = Gate.allow(requestingUser.role, requiredRole: user.role)
+        guard allowed else {
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot delete user with a higher role.")
         }
 
         guard user.id != requestingUser.id else {
