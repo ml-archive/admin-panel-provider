@@ -85,7 +85,7 @@ public final class Provider: Vapor.Provider {
 
     public func boot(_ config: Config) throws {
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
-        Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
+        //Middlewares.unsecured.append(SessionsMiddleware(MemorySessions()))
         Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
