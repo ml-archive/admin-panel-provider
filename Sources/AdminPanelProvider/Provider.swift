@@ -1,15 +1,20 @@
-import Flash
-import Vapor
-import Storage
-import Sessions
-import AuthProvider
-import LeafProvider
-import Leaf
 import AuditProvider
+import AuthProvider
+import Flash
+import Forms
+import Leaf
+import LeafProvider
 import Paginator
+import Sessions
+import Storage
+import Vapor
 
-public final class Provider: Vapor.Provider {
-    public static let repositoryName = "nodes-vapor/admin-panel-provider"
+public typealias Provider = CustomUserProvider<AdminPanelUser>
+
+public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
+    public static var repositoryName: String {
+        return "nodes-vapor/admin-panel-provider"
+    }
     public var panelConfig: PanelConfig
 
     public init(panelConfig: PanelConfig) {
@@ -85,20 +90,20 @@ public final class Provider: Vapor.Provider {
 
     public func boot(_ config: Config) throws {
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
-        Middlewares.unsecured.append(PersistMiddleware(AdminPanelUser.self))
+        Middlewares.unsecured.append(PersistMiddleware(U.self))
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
-        Middlewares.unsecured.append(ActivityMiddleware())
+        Middlewares.unsecured.append(CustomUserActivityMiddleware<U>())
 
         Middlewares.secured = Middlewares.unsecured
-        Middlewares.secured.append(ProtectMiddleware())
-        Middlewares.secured.append(PasswordAuthenticationMiddleware(AdminPanelUser.self))
+        Middlewares.secured.append(CustomUserProtectMiddleware<U>())
+        Middlewares.secured.append(PasswordAuthenticationMiddleware(U.self))
 
-        config.preparations.append(AdminPanelUser.self)
+        config.preparations.append(U.self)
         config.preparations.append(AdminPanelUserResetToken.self)
-        config.preparations.append(Action.self)
+        config.preparations.append(U.A.self)
 
-        config.addConfigurable(command: Seeder.init, name: "admin-panel:seeder")
+        config.addConfigurable(command: CustomUserSeeder<U>.init, name: "admin-panel:seeder")
         try config.addProvider(AuditProvider.Provider.self)
         try config.addProvider(PaginatorProvider.self)
     }
@@ -146,7 +151,7 @@ public final class Provider: Vapor.Provider {
     public func beforeRun(_ droplet: Droplet) throws {}
 }
 
-extension Provider {
+extension CustomUserProvider {
     public func registerLeafTags(_ renderer: LeafRenderer) {
         let stem = renderer.stem
         stem.register(Box())

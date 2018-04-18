@@ -2,11 +2,13 @@ import HTTP
 import Flash
 import Authentication
 
+public typealias ProtectMiddleware = CustomUserProtectMiddleware<AdminPanelUser>
+
 /// Redirects unauthenticated requests to a supplied path.
-public final class ProtectMiddleware: Middleware {
+public final class CustomUserProtectMiddleware<U: AdminPanelUserType>: Middleware {
     public func respond(to req: Request, chainingTo next: Responder) throws -> Response {
         do {
-            if let user = req.auth.authenticated(AdminPanelUser.self), user.shouldResetPassword {
+            if let user = req.auth.authenticated(U.self), user.shouldResetPassword {
                 let redirectPath = "/admin/backend/users/\(user.id?.string ?? "0")/edit"
 
                 if req.uri.path != redirectPath && req.uri.path.replacingOccurrences(of: "/", with: "") != redirectPath.replacingOccurrences(of: "/", with: "") {

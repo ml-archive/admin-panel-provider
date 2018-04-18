@@ -5,16 +5,63 @@ import AuthProvider
 import AuditProvider
 import FluentProvider
 
+public protocol AdminPanelUserType:
+    NodeRepresentable,
+    Parameterizable,
+    PasswordAuthenticatable,
+    Persistable,
+    Preparation,
+    SoftDeletable,
+    ViewDataRepresentable
+{
+    associatedtype A: Preparation
+
+    init(
+        name: String,
+        title: String,
+        email: String,
+        password: String,
+        role: String,
+        shouldResetPassword: Bool,
+        avatar: String?
+    ) throws
+
+    var avatar: String? { get set }
+    var email: String { get set }
+    var name: String { get set }
+    var password: String { get set }
+    var role: String { get set }
+    var shouldResetPassword: Bool { get set }
+    var title: String { get set }
+
+    /// database key name for `role` property
+    static var roleKey: String { get }
+
+    /// database key name for `email` property
+    static var emailKey: String { get }
+
+    func updatePassword(_ newPass: String) throws
+}
+
+extension AdminPanelUserType {
+    public static var roleKey: String { return "role" }
+    public static var emailKey: String { return "email" }
+}
+
+extension AdminPanelUser: AdminPanelUserType {
+    public typealias A = Action
+}
+
 public final class AdminPanelUser: Model {
     public let storage = Storage()
 
-    public var name: String
-    public var title: String
+    public var avatar: String?
     public var email: String
+    public var name: String
     public var password: String
     public var role: String
     public var shouldResetPassword: Bool
-    public var avatar: String?
+    public var title: String
 
     public var avatarUrl: String {
         return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
@@ -41,9 +88,9 @@ public final class AdminPanelUser: Model {
     public init(row: Row) throws {
         name = try row.get("name")
         title = try row.get("title")
-        email = try row.get("email")
+        email = try row.get(AdminPanelUser.emailKey)
         password = try row.get("password")
-        role = try row.get("role")
+        role = try row.get(AdminPanelUser.roleKey)
         shouldResetPassword = try row.get(AdminPanelUser.shouldResetPasswordKey)
         avatar = row["avatar"]?.string
     }
@@ -53,9 +100,9 @@ public final class AdminPanelUser: Model {
 
         try row.set("name", name)
         try row.set("title", title)
-        try row.set("email", email)
+        try row.set(AdminPanelUser.emailKey, email)
         try row.set("password", password)
-        try row.set("role", role)
+        try row.set(AdminPanelUser.roleKey, role)
         try row.set(AdminPanelUser.shouldResetPasswordKey, shouldResetPassword)
         try row.set("avatar", avatar)
 
@@ -76,8 +123,8 @@ extension AdminPanelUser: ViewDataRepresentable {
             "id": .string(id?.string ?? "0"),
             "name": .string(name),
             "title": .string(title),
-            "email": .string(email),
-            "role": .string(role),
+            AdminPanelUser.emailKey: .string(email),
+            AdminPanelUser.roleKey: .string(role),
             "avatarUrl": .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
@@ -90,7 +137,7 @@ extension AdminPanelUser: NodeRepresentable {
             "name": .string(name),
             "title": .string(title),
             "email": .string(email),
-            "role": .string(role),
+            AdminPanelUser.roleKey: .string(role),
             "avatarUrl": .string(Storage.getCDNPath(optional: avatar) ?? avatarUrl)
         ])
     }
@@ -106,9 +153,9 @@ extension AdminPanelUser: Preparation {
             $0.id()
             $0.string("name")
             $0.string("title")
-            $0.string("email")
+            $0.string(AdminPanelUser.emailKey)
             $0.string("password")
-            $0.string("role")
+            $0.string(AdminPanelUser.roleKey)
             $0.bool(AdminPanelUser.shouldResetPasswordKey)
             $0.string("avatar", optional: true)
         }
@@ -121,7 +168,7 @@ extension AdminPanelUser: Preparation {
 extension AdminPanelUser: PasswordAuthenticatable {
     public static func authenticate(_ credentials: Password) throws -> AdminPanelUser {
         guard
-            let user = try AdminPanelUser.makeQuery().filter("email", credentials.username).first(),
+            let user = try makeQuery().filter(AdminPanelUser.emailKey, credentials.username).first(),
             try BCryptHasher().check(credentials.password, matchesHash: user.password)
         else {
             throw Abort.unauthorized

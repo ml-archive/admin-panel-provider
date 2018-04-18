@@ -2,7 +2,9 @@ import Vapor
 import Cookies
 import AuthProvider
 
-public final class LoginController {
+public typealias LoginController = CustomUserLoginController<AdminPanelUser>
+
+public final class CustomUserLoginController<U: AdminPanelUserType> {
     public let renderer: ViewRenderer
     public let mailer: MailProtocol?
     public let panelConfig: PanelConfig
@@ -27,7 +29,7 @@ public final class LoginController {
             }
 
             let credentials = Password(username: username, password: password)
-            let user = try AdminPanelUser.authenticate(credentials)
+            let user = try U.authenticate(credentials)
             try req.auth.authenticate(user, persist: true)
 
             var redir = "/admin/dashboard"
@@ -42,7 +44,7 @@ public final class LoginController {
     }
 
     public func landing(req: Request) throws -> ResponseRepresentable {
-        guard !req.auth.isAuthenticated(AdminPanelUser.self) else {
+        guard !req.auth.isAuthenticated(U.self) else {
             return redirect("/admin/dashboard")
         }
 
@@ -66,7 +68,7 @@ public final class LoginController {
         do {
             guard
                 let email = req.data["email"]?.string,
-                let user = try AdminPanelUser.makeQuery().filter("email", email).first()
+                let user = try U.makeQuery().filter(U.emailKey, email).first()
             else {
                 return redirect("/admin/login")
                     .flash(.success, "E-mail with instructions sent if user exists")
@@ -151,7 +153,7 @@ public final class LoginController {
                 .flash(.error, "Passwords do not match")
         }
 
-        guard let user = try AdminPanelUser.makeQuery().filter("email", email).first() else {
+        guard let user = try U.makeQuery().filter(U.emailKey, email).first() else {
             return redirect("/admin/login").flash(.error, "User not found")
         }
 

@@ -1,8 +1,10 @@
 import Vapor
 import Console
 
+typealias Seeder = CustomUserSeeder<AdminPanelUser>
+
 /// Seeds the admin panel with a default user
-public final class Seeder: Command, ConfigInitializable {
+public final class CustomUserSeeder<U: AdminPanelUserType>: Command, ConfigInitializable {
     public let id = "admin-panel:seeder"
 
     public let help: [String] = [
@@ -18,7 +20,7 @@ public final class Seeder: Command, ConfigInitializable {
     public func run(arguments: [String]) throws {
         console.info("Started the seeder")
 
-        let user = try AdminPanelUser(
+        let user = try U(
             name: "Admin",
             title: "Default admin account",
             email: "admin@admin.com",

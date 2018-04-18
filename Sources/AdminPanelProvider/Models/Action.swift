@@ -1,7 +1,9 @@
 import FluentProvider
 
+public typealias Action = CustomUserAction<AdminPanelUser>
+
 /// An event that occured in the admin panel
-public final class Action: Model {
+public final class CustomUserAction<U: AdminPanelUserType>: Model {
     public let storage = Storage()
 
     public var name: String
@@ -35,9 +37,9 @@ public final class Action: Model {
     }
 }
 
-extension Action: Timestampable {}
+extension CustomUserAction: Timestampable {}
 
-extension Action: JSONRepresentable {
+extension CustomUserAction: JSONRepresentable {
     public func makeJSON() throws -> JSON {
         var json = JSON()
 
@@ -51,13 +53,13 @@ extension Action: JSONRepresentable {
     }
 }
 
-extension Action: Preparation {
+extension CustomUserAction: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
             $0.id()
             $0.string("name")
             $0.string("message")
-            $0.foreignId(for: AdminPanelUser.self)
+            $0.foreignId(for: U.self)
         }
     }
 
@@ -66,8 +68,8 @@ extension Action: Preparation {
     }
 }
 
-extension Action {
-    public static func report(_ user: AdminPanelUser, _ message: String) {
+extension CustomUserAction {
+    public static func report(_ user: U, _ message: String) {
         do {
             let action = Action(name: user.name, userId: user.id ?? "0", message: message)
             try action.save()

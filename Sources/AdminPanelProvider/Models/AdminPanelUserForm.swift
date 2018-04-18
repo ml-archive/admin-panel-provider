@@ -53,9 +53,9 @@ public struct AdminPanelUserForm {
 extension AdminPanelUserForm {
     public static func validating(_ data: Content, ignoreRole: Bool = false) -> (AdminPanelUserForm, Bool) {
         let name = data["name"]?.string
-        let email = data["email"]?.string
+        let email = data[AdminPanelUser.emailKey]?.string
         let title = data["title"]?.string
-        let role = data["role"]?.string
+        let role = data[AdminPanelUser.roleKey]?.string
         let shouldResetPassword = data["shouldResetPassword"]?.string != nil
         let sendEmail = data["sendEmail"]?.string != nil
         let password = data["password"]?.string
@@ -220,7 +220,7 @@ extension AdminPanelUserForm: NodeRepresentable {
         try node.set("name", nameObj)
         try node.set("email", emailObj)
         try node.set("title", titleObj)
-        try node.set("role", roleObj)
+        try node.set(AdminPanelUser.roleKey, roleObj)
         try node.set("shouldResetPassword", shouldResetPasswordObj)
         try node.set("sendEmail", sendEmailObj)
         try node.set("password", passwordObj)
