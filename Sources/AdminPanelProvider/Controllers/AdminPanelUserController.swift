@@ -88,13 +88,13 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                 avatar = path
             }
 
-            let randomPassword = form.password.isEmpty ? String.random(12) : form.password
+            let password = form.password.isEmpty ? String.random(12) : form.password
 
             let user = try U(
                 name: form.name,
                 title: form.title,
                 email: form.email,
-                password: randomPassword,
+                password: password,
                 role: form.role,
                 shouldResetPassword: form.shouldResetPassword,
                 avatar: avatar
@@ -114,8 +114,8 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                     "url": .string(panelConfig.baseUrl)
                 ]
 
-                if !randomPassword.isEmpty {
-                    context["password"] = .string(randomPassword)
+                if !password.isEmpty {
+                    context["password"] = .string(password)
                 }
 
                 mailer?.sendEmail(
@@ -144,7 +144,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     public func edit(req: Request) throws -> ResponseRepresentable {
         let user: U
         do {
-            user = try req.parameters.next(U.self)
+            user = try req.parameters.next()
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
@@ -165,7 +165,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
         do {
             var user: U
             do {
-                user = try req.parameters.next(U.self)
+                user = try req.parameters.next()
             } catch {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
@@ -267,7 +267,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
 
         let user: U
         do {
-            user = try req.parameters.next(U.self)
+            user = try req.parameters.next()
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
