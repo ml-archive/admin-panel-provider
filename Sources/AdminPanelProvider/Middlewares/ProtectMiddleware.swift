@@ -8,7 +8,7 @@ public typealias ProtectMiddleware = CustomUserProtectMiddleware<AdminPanelUser>
 public final class CustomUserProtectMiddleware<U: AdminPanelUserType>: Middleware {
     public func respond(to req: Request, chainingTo next: Responder) throws -> Response {
         do {
-            if let user = req.auth.authenticated(U.self), user.shouldResetPassword {
+            if let user: U = req.auth.authenticated(), user.shouldResetPassword {
                 let redirectPath = "/admin/backend/users/\(user.id?.string ?? "0")/edit"
 
                 if req.uri.path != redirectPath && req.uri.path.replacingOccurrences(of: "/", with: "") != redirectPath.replacingOccurrences(of: "/", with: "") {

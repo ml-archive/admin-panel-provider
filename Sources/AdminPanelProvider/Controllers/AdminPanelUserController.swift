@@ -26,7 +26,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let superAdmins = try U.makeQuery().filter(U.roleKey, "Super Admin").all()
         let admins = try U.makeQuery().filter(U.roleKey, "Admin").all()
@@ -44,14 +44,14 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     }
 
     public func create(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
         let fieldset = try req.fieldset ?? AdminPanelUserForm().makeNode(in: nil)
         return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
@@ -149,7 +149,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
         guard allowed else {
@@ -170,7 +170,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
-            let requestingUser = try req.auth.assertAuthenticated(U.self)
+            let requestingUser: U = try req.auth.assertAuthenticated()
             let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
 
             guard allowed else {
@@ -262,7 +262,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     }
 
     public func delete(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         let user: U
@@ -282,7 +282,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(U.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         let user: U

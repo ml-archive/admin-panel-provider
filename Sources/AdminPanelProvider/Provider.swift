@@ -90,18 +90,18 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
 
     public func boot(_ config: Config) throws {
         try Middlewares.unsecured.append(PanelConfigMiddleware(panelConfig))
-        Middlewares.unsecured.append(PersistMiddleware(U.self))
+        Middlewares.unsecured.append(PersistMiddleware<U>())
         Middlewares.unsecured.append(FlashMiddleware())
         Middlewares.unsecured.append(FieldsetMiddleware())
         Middlewares.unsecured.append(CustomUserActivityMiddleware<U>())
 
         Middlewares.secured = Middlewares.unsecured
         Middlewares.secured.append(CustomUserProtectMiddleware<U>())
-        Middlewares.secured.append(PasswordAuthenticationMiddleware(U.self))
+        Middlewares.secured.append(PasswordAuthenticationMiddleware<U>())
 
         config.preparations.append(U.self)
         config.preparations.append(AdminPanelUserResetToken.self)
-        config.preparations.append(U.A.self)
+        config.preparations.append(CustomUserAction<U>.self)
 
         config.addConfigurable(command: CustomUserSeeder<U>.init, name: "admin-panel:seeder")
         try config.addProvider(AuditProvider.Provider.self)
@@ -122,13 +122,13 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
             mailer = nil
         }
 
-        let loginController = LoginController(
+        let loginController = CustomUserLoginController<U>(
             renderer: renderer,
             mailer: mailer,
             panelConfig: panelConfig
         )
 
-        let loginCollection = LoginRoutes(controller: loginController)
+        let loginCollection = CustomUserLoginRoutes<U>(controller: loginController)
         try droplet.collection(loginCollection)
 
         let panelRoutes = PanelRoutes(
@@ -138,7 +138,7 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
         )
         try droplet.collection(panelRoutes)
 
-        let bUserRoutes = AdminPanelUserRoutes(
+        let bUserRoutes = CustomAdminPanelUserRoutes<U>(
             renderer: renderer,
             env: droplet.config.environment,
             mailer: mailer,

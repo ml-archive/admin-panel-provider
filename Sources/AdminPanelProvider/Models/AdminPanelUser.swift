@@ -6,16 +6,15 @@ import AuditProvider
 import FluentProvider
 
 public protocol AdminPanelUserType:
+    AuditCustomDescribable,
     NodeRepresentable,
     Parameterizable,
     PasswordAuthenticatable,
-    Persistable,
     Preparation,
+    SessionPersistable,
     SoftDeletable,
     ViewDataRepresentable
 {
-    associatedtype A: Preparation
-
     init(
         name: String,
         title: String,
@@ -27,6 +26,7 @@ public protocol AdminPanelUserType:
     ) throws
 
     var avatar: String? { get set }
+    var avatarUrl: String { get }
     var email: String { get set }
     var name: String { get set }
     var password: String { get set }
@@ -39,8 +39,12 @@ public protocol AdminPanelUserType:
 
     /// database key name for `email` property
     static var emailKey: String { get }
+}
 
-    func updatePassword(_ newPass: String) throws
+extension AdminPanelUserType {
+    public var avatarUrl: String {
+        return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
+    }
 }
 
 extension AdminPanelUserType {
@@ -48,9 +52,25 @@ extension AdminPanelUserType {
     public static var emailKey: String { return "email" }
 }
 
-extension AdminPanelUser: AdminPanelUserType {
-    public typealias A = Action
+extension AdminPanelUserType {
+    public func updatePassword(_ newPass: String) throws {
+        password = try BCryptHasher().make(newPass.makeBytes()).makeString()
+        try save()
+    }
+
+    public static func authenticate(_ credentials: Password) throws -> Self {
+        guard
+            let user = try makeQuery().filter(emailKey, credentials.username).first(),
+            try BCryptHasher().check(credentials.password, matchesHash: user.password)
+        else {
+            throw Abort.unauthorized
+        }
+
+        return user
+    }
 }
+
+extension AdminPanelUser: AdminPanelUserType {}
 
 public final class AdminPanelUser: Model {
     public let storage = Storage()
@@ -62,10 +82,6 @@ public final class AdminPanelUser: Model {
     public var role: String
     public var shouldResetPassword: Bool
     public var title: String
-
-    public var avatarUrl: String {
-        return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
-    }
 
     public init(
         name: String,
@@ -110,13 +126,6 @@ public final class AdminPanelUser: Model {
     }
 }
 
-extension AdminPanelUser {
-    public func updatePassword(_ newPass: String) throws {
-        password = try BCryptHasher().make(newPass.makeBytes()).makeString()
-        try save()
-    }
-}
-
 extension AdminPanelUser: ViewDataRepresentable {
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
@@ -145,8 +154,6 @@ extension AdminPanelUser: NodeRepresentable {
 
 extension AdminPanelUser: Author {}
 extension AdminPanelUser: Timestampable {}
-extension AdminPanelUser: SoftDeletable {}
-extension AdminPanelUser: SessionPersistable {}
 extension AdminPanelUser: Preparation {
     public static func prepare(_ database: Database) throws {
         try database.create(self) {
@@ -165,18 +172,7 @@ extension AdminPanelUser: Preparation {
         try database.delete(self)
     }
 }
-extension AdminPanelUser: PasswordAuthenticatable {
-    public static func authenticate(_ credentials: Password) throws -> AdminPanelUser {
-        guard
-            let user = try makeQuery().filter(AdminPanelUser.emailKey, credentials.username).first(),
-            try BCryptHasher().check(credentials.password, matchesHash: user.password)
-        else {
-            throw Abort.unauthorized
-        }
 
-        return user
-    }
-}
 extension AdminPanelUser: AuditCustomDescribable {
     public static var auditDescription: String {
         return "User"
@@ -195,6 +191,4 @@ extension AdminPanelUser {
             return "should_reset_password"
         }
     }
-
 }
-

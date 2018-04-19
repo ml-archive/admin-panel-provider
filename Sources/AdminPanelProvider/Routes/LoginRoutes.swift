@@ -2,10 +2,12 @@ import HTTP
 import Vapor
 import AuthProvider
 
-public final class LoginRoutes: RouteCollection {
-    public let controller: LoginController
+public typealias LoginRoutes = CustomUserLoginRoutes<AdminPanelUser>
 
-    public init(controller: LoginController) {
+public final class CustomUserLoginRoutes<U: AdminPanelUserType>: RouteCollection {
+    public let controller: CustomUserLoginController<U>
+
+    public init(controller: CustomUserLoginController<U>) {
         self.controller = controller
     }
 
