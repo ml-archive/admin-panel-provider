@@ -10,6 +10,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
     public let titleField: FormField<String>
     public let roleField: FormField<String>
     public let shouldResetPasswordField: FormField<Bool>
+    public let shouldSendEmailField: FormField<Bool>
 
     init(
         userId: Identifier? = nil,
@@ -19,7 +20,8 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
         title: String? = nil,
         role: String? = nil,
         avatar: String? = nil,
-        shouldResetPassword: Bool = false
+        shouldResetPassword: Bool = false,
+        shouldSendEmail: Bool = false
     ) {
         let stringLengthValidator = Count<String>.containedIn(low: 1, high: 191)
 
@@ -46,7 +48,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
             validator: emailValidator.allowingNil(false)
         )
         // TODO: add more password restrictions
-        let passwordValidator = Count<String>.containedIn(low: 6, high: 191)
+        let passwordValidator = Count<String>.containedIn(low: 8, high: 191)
         passwordField = FormField(
             key: "password",
             label: "Password",
@@ -70,6 +72,11 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
             label: "Should Reset Password",
             value: shouldResetPassword
         )
+        shouldSendEmailField = FormField(
+            key: "shouldSendEmail",
+            label: "Send Email with Info",
+            value: shouldSendEmail
+        )
     }
 }
 
@@ -81,7 +88,8 @@ extension AdminPanelUserForm {
             passwordField,
             titleField,
             roleField,
-            shouldResetPasswordField
+            shouldResetPasswordField,
+            shouldSendEmailField
         ]
     }
 }
@@ -104,6 +112,9 @@ extension AdminPanelUserForm {
     }
     public var shouldResetPassword: Bool {
         return shouldResetPasswordField.value ?? false
+    }
+    public var shouldSendEmail: Bool {
+        return shouldSendEmailField.value ?? false
     }
 }
 
@@ -141,7 +152,8 @@ extension AdminPanelUserForm: RequestInitializable {
             password: content.get("password"),
             title: content.get("title"),
             role: content.get("role"),
-            shouldResetPassword: content.get("shouldResetPassword")
+            shouldResetPassword: content.get("shouldResetPassword"),
+            shouldSendEmail: content.get("shouldSendEmail")
         )
     }
 }

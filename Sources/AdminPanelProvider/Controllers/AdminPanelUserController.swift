@@ -82,7 +82,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
             try user.save()
 
             if
-                try req.data.get("shouldSendEmail") ?? false,
+                form.shouldSendEmail,
                 panelConfig.isEmailEnabled,
                 let name = panelConfig.fromName,
                 let email = panelConfig.fromEmail

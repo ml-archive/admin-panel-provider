@@ -7,8 +7,9 @@ import Storage
 import Vapor
 
 public protocol AdminPanelUserFormType: Form {
-    var role: String? { get }
     var password: String? { get }
+    var role: String? { get }
+    var shouldSendEmail: Bool { get }
 }
 
 public protocol AdminPanelUserType:
