@@ -1,231 +1,159 @@
+import Forms
+import Validation
 import Vapor
 
-public struct AdminPanelUserForm {
-    public let name: String
-    public let nameErrors: [String]
-    public let email: String
-    public let emailErrors: [String]
-    public let title: String
-    public let titleErrors: [String]
-    public let role: String
-    public let roleErrors: [String]
-    public let password: String
-    public let passwordErrors: [String]
-    public let passwordRepeat: String
-    public let passwordRepeatErrors: [String]
+// sourcery: form
+public struct AdminPanelUserForm: AdminPanelUserFormType {
+    public let nameField: FormField<String>
+    public let emailField: FormField<String>
+    public let passwordField: FormField<String>
+    public let titleField: FormField<String>
+    public let roleField: FormField<String>
+    public let shouldResetPasswordField: FormField<Bool>
 
-    public let shouldResetPassword: Bool
-    public let sendEmail: Bool
-
-    public init(
+    init(
+        userId: Identifier? = nil,
         name: String? = nil,
-        nameErrors: [String] = [],
         email: String? = nil,
-        emailErrors: [String] = [],
-        title: String? = nil,
-        titleErrors: [String] = [],
-        role: String? = nil,
-        roleErrors: [String] = [],
         password: String? = nil,
-        passwordErrors: [String] = [],
-        passwordRepeat: String? = nil,
-        passwordRepeatErrors: [String] = [],
-        shouldResetPassword: Bool? = nil,
-        sendEmail: Bool? = nil
+        title: String? = nil,
+        role: String? = nil,
+        avatar: String? = nil,
+        shouldResetPassword: Bool = false
     ) {
-        self.name = name ?? ""
-        self.nameErrors = nameErrors
-        self.email = email ?? ""
-        self.emailErrors = emailErrors
-        self.title = title ?? ""
-        self.titleErrors = titleErrors
-        self.role = role ?? ""
-        self.roleErrors = roleErrors
-        self.password = password ?? ""
-        self.passwordErrors = passwordErrors
-        self.passwordRepeat = passwordRepeat ?? ""
-        self.passwordRepeatErrors = passwordRepeatErrors
-        self.shouldResetPassword = shouldResetPassword ?? false
-        self.sendEmail = sendEmail ?? false
+        let stringLengthValidator = Count<String>.containedIn(low: 1, high: 191)
+
+        let emailValidator = EmailValidator() && UniqueEntityValidator(
+            fieldName: "email",
+            exceptId: userId,
+            countOfEntities: AdminPanelUser.countOfEntities,
+            errorOnExist: ValidatorError.failure(
+                type: "User email",
+                reason: "Provided email already exists."
+            )
+        )
+
+        nameField = FormField(
+            key: "name",
+            label: "Name",
+            value: name,
+            validator: stringLengthValidator.allowingNil(false)
+        )
+        emailField = FormField(
+            key: "email",
+            label: "Email",
+            value: email,
+            validator: emailValidator.allowingNil(false)
+        )
+        // TODO: add more password restrictions
+        let passwordValidator = Count<String>.containedIn(low: 6, high: 191)
+        passwordField = FormField(
+            key: "password",
+            label: "Password",
+            value: password,
+            validator: passwordValidator.allowingNil(true)
+        )
+        titleField = FormField(
+            key: "title",
+            label: "Title",
+            value: title,
+            validator: stringLengthValidator.allowingNil(false)
+        )
+        roleField = FormField(
+            key: "role",
+            label: "Role",
+            value: role,
+            validator: stringLengthValidator.allowingNil(false)
+        )
+        shouldResetPasswordField = FormField(
+            key: "shouldResetPassword",
+            label: "Should Reset Password",
+            value: shouldResetPassword
+        )
     }
 }
 
 extension AdminPanelUserForm {
-    public static func validating(_ data: Content, ignoreRole: Bool = false) -> (AdminPanelUserForm, Bool) {
-        let name = data["name"]?.string
-        let email = data[AdminPanelUser.emailKey]?.string
-        let title = data["title"]?.string
-        let role = data[AdminPanelUser.roleKey]?.string
-        let shouldResetPassword = data["shouldResetPassword"]?.string != nil
-        let sendEmail = data["sendEmail"]?.string != nil
-        let password = data["password"]?.string
-        let passwordRepeat = data["passwordRepeat"]?.string
-
-        return validate(
-            name: name,
-            email: email,
-            title: title,
-            role: role,
-            shouldResetPassword: shouldResetPassword,
-            sendEmail: sendEmail,
-            password: password,
-            passwordRepeat: passwordRepeat,
-            ignoreRole: ignoreRole
-        )
+    public var fields: [FieldType] {
+        return [
+            nameField,
+            emailField,
+            passwordField,
+            titleField,
+            roleField,
+            shouldResetPasswordField
+        ]
     }
+}
 
-    public static func validate(
-        name: String?,
-        email: String?,
-        title: String?,
-        role: String?,
-        shouldResetPassword: Bool?,
-        sendEmail: Bool?,
-        password: String?,
-        passwordRepeat: String?,
-        ignoreRole: Bool
-    ) -> (AdminPanelUserForm, Bool) {
-        var hasErrors = false
+extension AdminPanelUserForm {
+    public var name: String? {
+        return nameField.value
+    }
+    public var email: String? {
+        return emailField.value
+    }
+    public var password: String? {
+        return passwordField.value
+    }
+    public var title: String? {
+        return titleField.value
+    }
+    public var role: String? {
+        return roleField.value
+    }
+    public var shouldResetPassword: Bool {
+        return shouldResetPasswordField.value ?? false
+    }
+}
 
-        var nameErrors: [String] = []
-        var emailErrors: [String] = []
-        var titleErrors: [String] = []
-        var passwordErrors: [String] = []
-        var passwordRepeatErrors: [String] = []
-        var roleErrors: [String] = []
-
-        let requiredFieldError = "Field is required"
-        if name == nil {
-            nameErrors.append(requiredFieldError)
-            hasErrors = true
-        }
-
-        if email == nil {
-            emailErrors.append(requiredFieldError)
-            hasErrors = true
-        }
-
-        if title == nil {
-            titleErrors.append(requiredFieldError)
-            hasErrors = true
-        }
-
-        if role == nil && !ignoreRole {
-            roleErrors.append(requiredFieldError)
-            hasErrors = true
-        }
-
-        let nameCharactercount = name?.utf8.count ?? 0
-        if nameCharactercount < 1 || nameCharactercount > 191 {
-            nameErrors.append("Must be between 1 and 191 characters long")
-            hasErrors = true
-        }
-
-        let emailCharactercount = email?.utf8.count ?? 0
-        if emailCharactercount < 1 || emailCharactercount > 191 {
-            emailErrors.append("Must be between 1 and 191 characters long")
-            hasErrors = true
-        }
-
-        if let password = password, !password.isEmpty {
-            let passwordCharactercount = password.utf8.count
-            if passwordCharactercount < 8 || passwordCharactercount > 191 {
-                passwordErrors.append("Must be between 8 and 191 characters long")
-                hasErrors = true
-            }
-        }
-
-        if let passwordRepeat = passwordRepeat, !passwordRepeat.isEmpty {
-            let passwordRepeatCharacterCount = passwordRepeat.utf8.count
-            if passwordRepeatCharacterCount < 8 || passwordRepeatCharacterCount > 191 {
-                passwordRepeatErrors.append("Must be between 8 and 191 characters long")
-                hasErrors = true
-            }
-        }
-
-        if password != passwordRepeat {
-            passwordRepeatErrors.append("Passwords do not match")
-            hasErrors = true
+extension AdminPanelUserForm {
+    public func assertValues(errorOnNil: Error = Abort(.internalServerError)) throws -> (
+        name: String,
+        email: String,
+        title: String,
+        role: String
+    ) {
+        guard
+            let name = name,
+            let email = email,
+            let title = title,
+            let role = role
+        else {
+            throw errorOnNil
         }
 
         return (
-            AdminPanelUserForm(
-                name: name,
-                nameErrors: nameErrors,
-                email: email,
-                emailErrors: emailErrors,
-                title: title,
-                titleErrors: titleErrors,
-                role: role,
-                roleErrors: roleErrors,
-                password: password,
-                passwordErrors: passwordErrors,
-                passwordRepeat: passwordRepeat,
-                passwordRepeatErrors: passwordRepeatErrors,
-                shouldResetPassword: shouldResetPassword,
-                sendEmail: sendEmail
-            ),
-            hasErrors
+            name: name,
+            email: email,
+            title: title,
+            role: role
         )
     }
 }
 
-extension AdminPanelUserForm: NodeRepresentable {
-    public func makeNode(in context: Context?) throws -> Node {
-        let nameObj = try Node(node: [
-            "label": "Name",
-            "value": .string(name),
-            "errors": Node(node: nameErrors)
-        ])
+extension AdminPanelUserForm: RequestInitializable {
+    public init(request: Request) throws {
+        let content = request.data
+        try self.init(
+            name: content.get("name"),
+            email: content.get("email"),
+            password: content.get("password"),
+            title: content.get("title"),
+            role: content.get("role"),
+            shouldResetPassword: content.get("shouldResetPassword")
+        )
+    }
+}
 
-        let emailObj = try Node(node: [
-            "label": "Email",
-            "value": .string(email),
-            "errors": Node(node: emailErrors)
-        ])
-
-        let titleObj = try Node(node: [
-            "label": "Title",
-            "value": .string(title),
-            "errors": Node(node: titleErrors)
-        ])
-
-        let roleObj = try Node(node: [
-            "label": "Role",
-            "value": .string(role),
-            "errors": Node(node: roleErrors)
-        ])
-
-        let shouldResetPasswordObj = Node(node: [
-            "label": "Should reset password",
-            "value": .bool(shouldResetPassword)
-        ])
-
-        let sendEmailObj = Node(node: [
-            "label": "Send email with information",
-            "value": .bool(sendEmail)
-        ])
-
-        let passwordObj = try Node(node: [
-            "label": "Password",
-            "errors": Node(node: passwordErrors)
-        ])
-
-        let passwordRepeatObj = try Node(node: [
-            "label": "Repeat password",
-            "errors": Node(node: passwordRepeatErrors)
-        ])
-
-        var node = Node.object([:])
-        try node.set("name", nameObj)
-        try node.set("email", emailObj)
-        try node.set("title", titleObj)
-        try node.set(AdminPanelUser.roleKey, roleObj)
-        try node.set("shouldResetPassword", shouldResetPasswordObj)
-        try node.set("sendEmail", sendEmailObj)
-        try node.set("password", passwordObj)
-        try node.set("passwordRepeat", passwordRepeatObj)
-
-        return node
+extension AdminPanelUserForm {
+    public init(user: AdminPanelUser) {
+        self.init(
+            name: user.name,
+            email: user.email,
+            title: user.title,
+            role: user.role,
+            shouldResetPassword: user.shouldResetPassword
+        )
     }
 }

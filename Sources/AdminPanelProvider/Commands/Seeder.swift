@@ -20,15 +20,7 @@ public final class CustomUserSeeder<U: AdminPanelUserType>: Command, ConfigIniti
     public func run(arguments: [String]) throws {
         console.info("Started the seeder")
 
-        let user = try U(
-            name: "Admin",
-            title: "Default admin account",
-            email: "admin@admin.com",
-            password: "admin",
-            role: "Super Admin",
-            shouldResetPassword: false,
-            avatar: nil
-        )
+        let user = try U.makeSeededUser()
 
         try user.save()
 

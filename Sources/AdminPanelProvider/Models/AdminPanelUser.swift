@@ -1,9 +1,15 @@
-import Vapor
-import BCrypt
-import Storage
-import AuthProvider
 import AuditProvider
+import AuthProvider
+import BCrypt
 import FluentProvider
+import Forms
+import Storage
+import Vapor
+
+public protocol AdminPanelUserFormType: Form {
+    var role: String? { get }
+    var password: String? { get }
+}
 
 public protocol AdminPanelUserType:
     AuditCustomDescribable,
@@ -15,24 +21,36 @@ public protocol AdminPanelUserType:
     SoftDeletable,
     ViewDataRepresentable
 {
-    init(
-        name: String,
-        title: String,
-        email: String,
-        password: String,
-        role: String,
-        shouldResetPassword: Bool,
-        avatar: String?
-    ) throws
+    static func makeSeededUser() throws -> Self
+    static func makeSSOUser(withEmail: String) throws -> Self
 
-    var avatar: String? { get set }
-    var avatarUrl: String { get }
+    associatedtype Form: AdminPanelUserFormType, RequestInitializable
+
+    /// Create a new user with the values from the form
+    ///
+    /// - Parameters:
+    ///   - form: form with user values
+    ///   - panelConfig: panel configuration
+    ///   - req: the request
+    init(form: Form, panelConfig: PanelConfig?, req: Request?) throws
+
+    /// Should update any fields which have corresponding values in the form except password.
+    ///
+    /// - Parameters:
+    ///   - form: form with updated values
+    ///   - panelConfig: panel configuration
+    ///   - req: the request
+    func updateNonPasswordValues(form: Form, panelConfig: PanelConfig?, req: Request?) throws
+    func makeForm() -> Form
+
+    static func hashPassword(_: String) throws -> String
+
     var email: String { get set }
     var name: String { get set }
-    var password: String { get set }
     var role: String { get set }
+
+    var password: String { get set }
     var shouldResetPassword: Bool { get set }
-    var title: String { get set }
 
     /// database key name for `role` property
     static var roleKey: String { get }
@@ -42,20 +60,11 @@ public protocol AdminPanelUserType:
 }
 
 extension AdminPanelUserType {
-    public var avatarUrl: String {
-        return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
-    }
-}
-
-extension AdminPanelUserType {
     public static var roleKey: String { return "role" }
     public static var emailKey: String { return "email" }
-}
 
-extension AdminPanelUserType {
-    public func updatePassword(_ newPass: String) throws {
-        password = try BCryptHasher().make(newPass.makeBytes()).makeString()
-        try save()
+    public static func hashPassword(_ password: String) throws -> String {
+        return try BCryptHasher().make(password.makeBytes()).makeString()
     }
 
     public static func authenticate(_ credentials: Password) throws -> Self {
@@ -70,7 +79,104 @@ extension AdminPanelUserType {
     }
 }
 
-extension AdminPanelUser: AdminPanelUserType {}
+extension AdminPanelUser: AdminPanelUserType {
+    public static func makeSeededUser() throws -> AdminPanelUser {
+        return try .init(
+            name: "Admin",
+            title: "Default admin account",
+            email: "admin@admin.com",
+            password: "admin",
+            role: "Super Admin",
+            shouldResetPassword: false,
+            avatar: nil
+        )
+    }
+
+    public static func makeSSOUser(withEmail email: String) throws -> AdminPanelUser {
+        return try .init(
+            name: "Admin",
+            title: "Nodes Admin",
+            email: email,
+            password: String.random(16),
+            role: "Super Admin",
+            shouldResetPassword: false,
+            avatar: nil
+        )
+    }
+
+    public convenience init(
+        form: AdminPanelUserForm,
+        panelConfig: PanelConfig?,
+        req: Request?
+    ) throws {
+        let values = try form.assertValues()
+
+        // extract avatar from request
+        var avatar: String? = nil
+        if
+            let req = req,
+            let panelConfig = panelConfig,
+            let profileImage = req.data["profileImage"]?.string,
+            profileImage.hasPrefix("data:"),
+            panelConfig.isStorageEnabled
+        {
+            let path = try Storage.upload(dataURI: profileImage, folder: "profile")
+            avatar = path
+        }
+
+        let newPassword: String
+        let shouldResetPassword: Bool
+
+        if let password = form.password, !password.isEmpty {
+            newPassword = password
+            shouldResetPassword = form.shouldResetPassword
+        } else {
+            newPassword = "" // this will be overwritten by the controller!
+            shouldResetPassword = true
+        }
+
+        try self.init(
+            name: values.name,
+            title: values.title,
+            email: values.email,
+            password: AdminPanelUser.hashPassword(newPassword),
+            role: values.role,
+            shouldResetPassword: shouldResetPassword,
+            avatar: avatar
+        )
+    }
+
+    public func updateNonPasswordValues(
+        form: AdminPanelUserForm,
+        panelConfig: PanelConfig?,
+        req: Request?
+    ) throws {
+        if let name = form.name {
+            self.name = name
+        }
+        if let title = form.title {
+            self.title = title
+        }
+        if let email = form.email {
+            self.email = email
+        }
+
+        if
+            let req = req,
+            let panelConfig = panelConfig,
+            let profileImage = req.data["profileImage"]?.string,
+            profileImage.hasPrefix("data:"),
+            panelConfig.isStorageEnabled
+        {
+            let path = try Storage.upload(dataURI: profileImage, folder: "profile")
+            avatar = path
+        }
+    }
+
+    public func makeForm() -> AdminPanelUserForm {
+        return AdminPanelUserForm(user: self)
+    }
+}
 
 public final class AdminPanelUser: Model {
     public let storage = Storage()
@@ -127,6 +233,10 @@ public final class AdminPanelUser: Model {
 }
 
 extension AdminPanelUser: ViewDataRepresentable {
+    public var avatarUrl: String {
+        return avatar ?? "https://api.adorable.io/avatars/150/\(email).png"
+    }
+
     public func makeViewData() throws -> ViewData {
         return try ViewData(viewData: [
             "id": .string(id?.string ?? "0"),

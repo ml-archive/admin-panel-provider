@@ -157,7 +157,9 @@ public final class CustomUserLoginController<U: AdminPanelUserType> {
             return redirect("/admin/login").flash(.error, "User not found")
         }
 
-        try user.updatePassword(password)
+        let hashedPassword = try U.hashPassword(password)
+        user.password = hashedPassword
+        try user.save()
         try token.use()
         return redirect("/admin/login").flash(.success, "Password reset")
     }

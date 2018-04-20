@@ -46,8 +46,12 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     public func create(req: Request) throws -> ResponseRepresentable {
         let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.fieldset ?? AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
+        let fieldset = try req.fieldset ?? AdminPanelUserForm().makeFieldset(inValidationMode: .none)
+
+        return try renderer.make(
+            "AdminPanel/BackendUser/edit",
+            ViewData([.fieldset: fieldset, .request: req])
+        )
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
@@ -55,55 +59,30 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
-            let isEmailUnique = try U.makeQuery().filter("email", form.email).first() == nil
+            let form = try U.Form.init(request: req)
 
-            if hasErrors || !isEmailUnique {
-                let response = redirect("/admin/backend/users/create")
+            guard form.isValid(inValidationMode: .all) else {
+                return try redirect("/admin/backend/users/create")
                     .flash(.error, "Validation error")
-                var fieldset = try form.makeNode(in: nil)
-
-                if (!isEmailUnique) {
-                    try fieldset.set(
-                        "email",
-                        try Node(node: [
-                            "label": "Email",
-                            "value": .string(form.email),
-                            "errors": Node(node: ["Provided email already exists."])
-                        ])
-                    )
-                }
-
-                response.fieldset = fieldset
-                return response
+                    .setFieldset(form.makeFieldset(inValidationMode: .all))
             }
 
-            var avatar: String? = nil
-            if
-                let profileImage = req.data["profileImage"]?.string,
-                profileImage.hasPrefix("data:"),
-                panelConfig.isStorageEnabled
-            {
-                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
-                avatar = path
-            }
-
-            let password = form.password.isEmpty ? String.random(12) : form.password
-
-            let user = try U(
-                name: form.name,
-                title: form.title,
-                email: form.email,
-                password: password,
-                role: form.role,
-                shouldResetPassword: form.shouldResetPassword,
-                avatar: avatar
+            let user = try U.init(
+                form: form,
+                panelConfig: panelConfig,
+                req: req
             )
+
+            var randomPassword: String?
+            if form.password == nil || form.password?.isEmpty == true {
+                randomPassword = String.random(12)
+                user.password = try U.hashPassword(randomPassword!) // safe to force unwrap here
+            }
 
             try user.save()
 
             if
-                form.sendEmail,
+                try req.data.get("shouldSendEmail") ?? false,
                 panelConfig.isEmailEnabled,
                 let name = panelConfig.fromName,
                 let email = panelConfig.fromEmail
@@ -114,8 +93,8 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                     "url": .string(panelConfig.baseUrl)
                 ]
 
-                if !password.isEmpty {
-                    context["password"] = .string(password)
+                if let randomPassword = randomPassword {
+                    context["password"] = .string(randomPassword)
                 }
 
                 mailer?.sendEmail(
@@ -156,8 +135,11 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
             throw Abort.notFound
         }
 
-        let fieldset = try req.fieldset ?? AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("AdminPanel/BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
+        let fieldset = try req.fieldset ?? user.makeForm().makeFieldset(inValidationMode: .none)
+        return try renderer.make(
+            "AdminPanel/BackendUser/edit",
+            ViewData(["user": user, .fieldset: fieldset, .request: req])
+        )
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
@@ -177,74 +159,35 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                 throw Abort.notFound
             }
 
-            // users already have a role, so we don't care if they don't/can't update it
-            let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
+            let form = try U.Form.init(request: req)
 
-            if
-                let userByEmail = try U.makeQuery().filter(U.emailKey, form.email).first(),
-                userByEmail.id != user.id
-            {
-                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+            if !form.isValid(inValidationMode: .nonNil) {
+                return redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
                     .flash(.error, "Validation error")
-                var fieldset = try form.makeNode(in: nil)
-
-                try fieldset.set(
-                    "email",
-                    try Node(node: [
-                        "label": "Email",
-                        "value": .string(form.email),
-                        "errors": Node(node: ["Provided email already exists."])
-                    ])
-                )
-
-                response.fieldset = fieldset
-                return response
-            }
-
-            if hasErrors {
-                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
-                    .flash(.error, "Validation error")
-                let fieldset = try form.makeNode(in: nil)
-                response.fieldset = fieldset
-                return response
-            }
-
-            user.name = form.name
-            user.title = form.title
-            user.email = form.email
-
-            let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
-            if user.shouldResetPassword {
-                guard formPasswordHash != user.password else {
-                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
-                        .flash(.error, "Please pick a new password")
-                    let fieldset = try form.makeNode(in: nil)
-                    response.fieldset = fieldset
-                    return response
-                }
-
-                user.shouldResetPassword = false
-            }
-
-            if !form.password.isEmpty {
-                user.password = formPasswordHash
+                    .setFieldset(try form.makeFieldset(inValidationMode: .nonNil))
             }
 
             // Users aren't allowed to change their own role
-            if requestingUser.id != user.id {
+            if let role = form.role, requestingUser.id != user.id {
                 // is the requesting user allowed to select this role?
-                if Gate.allow(requestingUser.role, requiredRole: form.role) {
-                    user.role = form.role
+                if Gate.allow(requestingUser.role, requiredRole: role) {
+                    user.role = role
                 }
             }
 
-            if
-                let profileImage = req.data["profileImage"]?.string,
-                profileImage.hasPrefix("data:"),
-                panelConfig.isStorageEnabled
-            {
-                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
-                user.avatar = path
+            try user.updateNonPasswordValues(form: form, panelConfig: panelConfig, req: req)
+
+            let passwordHash = try form.password.map(U.hashPassword)
+
+            if user.shouldResetPassword, passwordHash == user.password || passwordHash == nil {
+                return try redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Please pick a new password")
+                    .setFieldset(form.makeFieldset(inValidationMode: .nonNil))
+            }
+
+            if let passwordHash = passwordHash {
+                user.password = passwordHash
+                user.shouldResetPassword = false
             }
 
             try user.save()

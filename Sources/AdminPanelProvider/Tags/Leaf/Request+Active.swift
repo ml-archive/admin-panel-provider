@@ -25,7 +25,6 @@ extension Request {
             }
         }
         
-        
         return false
     }
 }
