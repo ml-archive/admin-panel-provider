@@ -48,7 +48,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
             validator: emailValidator.allowingNil(false)
         )
         // TODO: add more password restrictions
-        let passwordValidator = Count<String>.containedIn(low: 8, high: 191)
+        let passwordValidator = Count<String>.equals(0) || Count.containedIn(low: 8, high: 191)
         passwordField = FormField(
             key: "password",
             label: "Password",
