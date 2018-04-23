@@ -1,5 +1,5 @@
 # Admin Panel ✍️
-[![Swift Version](https://img.shields.io/badge/Swift-3-brightgreen.svg)](http://swift.org)
+[![Swift Version](https://img.shields.io/badge/Swift-4.1-brightgreen.svg)](http://swift.org)
 [![Vapor Version](https://img.shields.io/badge/Vapor-2-F6CBCA.svg)](http://vapor.codes)
 [![Circle CI](https://circleci.com/gh/nodes-vapor/admin-panel-provider/tree/master.svg?style=shield)](https://circleci.com/gh/nodes-vapor/admin-panel-provider)
 [![codebeat badge](https://codebeat.co/badges/2aa06de9-5bb5-4c2e-ad1a-ef6e08273184)](https://codebeat.co/projects/github-com-nodes-vapor-admin-panel-provider-master)
@@ -19,13 +19,6 @@ Admin Panel makes it easy to setup and maintain admin features for your Vapor pr
 ### Install package using SPM
 
 Update your `Package.swift` file:
-
-#### Swift 3
-
-```swift
-.Package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", majorVersion: 0, minor: 6)
-```
-#### Swift 4
 
 ```swift
 .package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.6.0")),
