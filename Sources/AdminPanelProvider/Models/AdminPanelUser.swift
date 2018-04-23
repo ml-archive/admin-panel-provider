@@ -23,7 +23,6 @@ public protocol AdminPanelUserType:
     ViewDataRepresentable
 {
     static func makeSeededUser() throws -> Self
-    static func makeSSOUser(withEmail: String) throws -> Self
 
     associatedtype Form: AdminPanelUserFormType, RequestInitializable
 
@@ -87,18 +86,6 @@ extension AdminPanelUser: AdminPanelUserType {
             title: "Default admin account",
             email: "admin@admin.com",
             password: "admin",
-            role: "Super Admin",
-            shouldResetPassword: false,
-            avatar: nil
-        )
-    }
-
-    public static func makeSSOUser(withEmail email: String) throws -> AdminPanelUser {
-        return try .init(
-            name: "Admin",
-            title: "Nodes Admin",
-            email: email,
-            password: String.random(16),
             role: "Super Admin",
             shouldResetPassword: false,
             avatar: nil
