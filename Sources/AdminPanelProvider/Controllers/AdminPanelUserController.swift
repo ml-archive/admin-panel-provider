@@ -88,7 +88,7 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
             try user.save()
 
             if
-                form.shouldSendEmail,
+                form.shouldSendEmail ?? false,
                 panelConfig.isEmailEnabled,
                 let name = panelConfig.fromName,
                 let email = panelConfig.fromEmail

@@ -9,7 +9,7 @@ import Vapor
 public protocol AdminPanelUserFormType: Form {
     var password: String? { get }
     var role: String? { get }
-    var shouldSendEmail: Bool { get }
+    var shouldSendEmail: Bool? { get }
 }
 
 public protocol AdminPanelUserType:
@@ -130,7 +130,7 @@ extension AdminPanelUser: AdminPanelUserType {
 
         if let password = form.password, !password.isEmpty {
             newPassword = password
-            shouldResetPassword = form.shouldResetPassword
+            shouldResetPassword = form.shouldResetPassword ?? false
         } else {
             newPassword = "" // this will be overwritten by the controller!
             shouldResetPassword = true

@@ -7,6 +7,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
     public let nameField: FormField<String>
     public let emailField: FormField<String>
     public let passwordField: FormField<String>
+    public let passwordRepeatField: FormField<String>
     public let titleField: FormField<String>
     public let roleField: FormField<String>
     public let shouldResetPasswordField: FormField<Bool>
@@ -17,6 +18,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
         name: String? = nil,
         email: String? = nil,
         password: String? = nil,
+        passwordRepeat: String? = nil,
         title: String? = nil,
         role: String? = nil,
         avatar: String? = nil,
@@ -54,6 +56,21 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
             label: "Password",
             value: password,
             validator: passwordValidator.allowingNil(true)
+                .transformingErrors(
+                    to: ValidatorError.failure(
+                        type: "Password",
+                        reason: "Password must be at least 8 characters."
+                    )
+            )
+        )
+        passwordRepeatField = FormField(
+            key: "passwordRepeat",
+            label: "Repeat password",
+            value: passwordRepeat,
+            validator: Equals(password ?? "")
+                .transformingErrors(
+                    to: ValidatorError.failure(type: "Password", reason: "Passwords do not match")
+                )
         )
         titleField = FormField(
             key: "title",
@@ -69,12 +86,12 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
         )
         shouldResetPasswordField = FormField(
             key: "shouldResetPassword",
-            label: "Should Reset Password",
+            label: "Should reset password",
             value: shouldResetPassword
         )
         shouldSendEmailField = FormField(
             key: "shouldSendEmail",
-            label: "Send Email with Info",
+            label: "Send email with info",
             value: shouldSendEmail
         )
     }
@@ -86,6 +103,7 @@ extension AdminPanelUserForm {
             nameField,
             emailField,
             passwordField,
+            passwordRepeatField,
             titleField,
             roleField,
             shouldResetPasswordField,
@@ -104,17 +122,20 @@ extension AdminPanelUserForm {
     public var password: String? {
         return passwordField.value
     }
+    public var passwordRepeat: String? {
+        return passwordRepeatField.value
+    }
     public var title: String? {
         return titleField.value
     }
     public var role: String? {
         return roleField.value
     }
-    public var shouldResetPassword: Bool {
-        return shouldResetPasswordField.value ?? false
+    public var shouldResetPassword: Bool? {
+        return shouldResetPasswordField.value
     }
-    public var shouldSendEmail: Bool {
-        return shouldSendEmailField.value ?? false
+    public var shouldSendEmail: Bool? {
+        return shouldSendEmailField.value
     }
 }
 
@@ -150,6 +171,7 @@ extension AdminPanelUserForm: RequestInitializable {
             name: content.get("name"),
             email: content.get("email"),
             password: content.get("password"),
+            passwordRepeat: content.get("passwordRepeat"),
             title: content.get("title"),
             role: content.get("role"),
             shouldResetPassword: content.get("shouldResetPassword"),
