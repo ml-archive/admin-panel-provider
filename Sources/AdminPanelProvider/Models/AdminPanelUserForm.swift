@@ -67,7 +67,7 @@ public struct AdminPanelUserForm: AdminPanelUserFormType {
             key: "passwordRepeat",
             label: "Repeat password",
             value: passwordRepeat,
-            validator: Equals(password ?? "")
+            validator: Equals<String?>(password ?? "")
                 .transformingErrors(
                     to: ValidatorError.failure(type: "Password", reason: "Passwords do not match")
                 )
