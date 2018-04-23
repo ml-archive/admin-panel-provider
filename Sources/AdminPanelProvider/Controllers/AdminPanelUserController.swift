@@ -67,6 +67,12 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                     .setFieldset(form.makeFieldset(inValidationMode: .all))
             }
 
+            guard let role = form.role, Gate.allow(requestingUser.role, requiredRole: role) else {
+                return try redirect("/admin/backend/users/create")
+                    .flash(.error, "Cannot create user with higher role than yourself.")
+                    .setFieldset(form.makeFieldset(inValidationMode: .all))
+            }
+
             let user = try U.init(
                 form: form,
                 panelConfig: panelConfig,
@@ -129,7 +135,10 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
         }
 
         let requestingUser: U = try req.auth.assertAuthenticated()
-        let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+        let allowed = requestingUser.id == user.id ||
+            Gate.allow(requestingUser.role, requiredRole: user.role) &&
+            Gate.allow(requestingUser, requiredRole: .admin)
+
 
         guard allowed else {
             throw Abort.notFound
@@ -143,7 +152,6 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
-
         do {
             var user: U
             do {
@@ -153,7 +161,9 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
             }
 
             let requestingUser: U = try req.auth.assertAuthenticated()
-            let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+            let allowed = requestingUser.id == user.id ||
+                Gate.allow(requestingUser.role, requiredRole: user.role) &&
+                Gate.allow(requestingUser, requiredRole: .admin)
 
             guard allowed else {
                 throw Abort.notFound
@@ -217,6 +227,14 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
 
         guard user.id != requestingUser.id else {
             return redirect("/admin/backend/users").flash(.error, "Cannot delete yourself")
+        }
+
+        let allowed =
+            Gate.allow(requestingUser.role, requiredRole: user.role) &&
+            Gate.allow(requestingUser, requiredRole: .admin)
+        guard allowed else {
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot delete user with a higher role.")
         }
 
         try user.delete()
