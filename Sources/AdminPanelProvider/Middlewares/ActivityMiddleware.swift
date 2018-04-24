@@ -3,9 +3,11 @@ import Storage
 import Paginator
 import AuditProvider
 
-public final class ActivityMiddleware: Middleware {
+public typealias ActivityMiddleware = CustomUserActivityMiddleware<AdminPanelUser>
+
+public final class CustomUserActivityMiddleware<U: AdminPanelUserType>: Middleware {
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
-        if request.auth.isAuthenticated(AdminPanelUser.self) {
+        if request.auth.isAuthenticated(U.self) {
             let node = try AuditEvent.makeQuery().limit(10).all().map { raw -> Node in
                 var node = try raw.makeNode(in: nil)
 
@@ -13,7 +15,7 @@ public final class ActivityMiddleware: Middleware {
                     try node.set("createdAt", createdAt)
                 }
 
-                if let author = try AdminPanelUser.find(raw.authorId) {
+                if let author = try U.find(raw.authorId) {
                     try node.set("author", author.makeNode(in: nil))
                 }
 

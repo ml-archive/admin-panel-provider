@@ -34,13 +34,13 @@ public class Gate {
     }
 
     /// Returns whether or not a given user has more than or equal permissions than required
-    public static func allow(_ user: AdminPanelUser, requiredRole: Role) -> Bool {
+    public static func allow<U: AdminPanelUserType>(_ user: U, requiredRole: Role) -> Bool {
         guard let role = Role.init(from: user.role) else { return false }
         return allow(role, requiredRole: requiredRole)
     }
 
     /// Throws if a user doesn't have equal or more permissions than required
-    public static func assertAllowed(_ user: AdminPanelUser, requiredRole: Role) throws {
+    public static func assertAllowed<U: AdminPanelUserType>(_ user: U, requiredRole: Role) throws {
         guard allow(user, requiredRole: requiredRole) else {
             // Don't show them this endpoint exists
             throw Abort.notFound

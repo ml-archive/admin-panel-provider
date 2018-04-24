@@ -1,10 +1,13 @@
+import Flash
+import Forms
 import Leaf
 import SMTP
-import Flash
-import Vapor
 import Storage
+import Vapor
 
-public final class AdminPanelUserController {
+public typealias AdminPanelUserController = CustomAdminPanelUserController<AdminPanelUser>
+
+public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
     public let renderer: ViewRenderer
     public let env: Environment
     public let mailer: MailProtocol?
@@ -23,11 +26,11 @@ public final class AdminPanelUserController {
     }
 
     public func index(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let superAdmins = try AdminPanelUser.makeQuery().filter("role", "Super Admin").all()
-        let admins = try AdminPanelUser.makeQuery().filter("role", "Admin").all()
-        let users = try AdminPanelUser.makeQuery().filter("role", "User").all()
+        let superAdmins = try U.makeQuery().filter(U.roleKey, "Super Admin").all()
+        let admins = try U.makeQuery().filter(U.roleKey, "Admin").all()
+        let users = try U.makeQuery().filter(U.roleKey, "User").all()
 
         return try renderer.make(
             "AdminPanel/BackendUser/index",
@@ -41,66 +44,51 @@ public final class AdminPanelUserController {
     }
 
     public func create(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
-        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("AdminPanel/BackendUser/edit", ["fieldset": fieldset], for: req)
+        let fieldset = try req.fieldset ?? AdminPanelUserForm().makeFieldset(inValidationMode: .none)
+
+        return try renderer.make(
+            "AdminPanel/BackendUser/edit",
+            ViewData([.fieldset: fieldset, .request: req])
+        )
     }
 
     public func store(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
         do {
-            let (form, hasErrors) = AdminPanelUserForm.validating(req.data)
-            let isEmailUnique = try AdminPanelUser.makeQuery().filter("email", form.email).first() == nil
+            let form = try U.Form.init(request: req)
 
-            if hasErrors || !isEmailUnique {
-                let response = redirect("/admin/backend/users/create")
+            guard form.isValid(inValidationMode: .all) else {
+                return try redirect("/admin/backend/users/create")
                     .flash(.error, "Validation error")
-                var fieldset = try form.makeNode(in: nil)
-
-                if (!isEmailUnique) {
-                    try fieldset.set(
-                        "email",
-                        try Node(node: [
-                            "label": "Email",
-                            "value": .string(form.email),
-                            "errors": Node(node: ["Provided email already exists."])
-                        ])
-                    )
-                }
-
-                response.storage["_fieldset"] = fieldset
-                return response
+                    .setFieldset(form.makeFieldset(inValidationMode: .all))
             }
 
-            var avatar: String? = nil
-            if
-                let profileImage = req.data["profileImage"]?.string,
-                profileImage.hasPrefix("data:"),
-                panelConfig.isStorageEnabled
-            {
-                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
-                avatar = path
+            guard let role = form.role, Gate.allow(requestingUser.role, requiredRole: role) else {
+                return try redirect("/admin/backend/users/create")
+                    .flash(.error, "Cannot create user with higher role than yourself.")
+                    .setFieldset(form.makeFieldset(inValidationMode: .all))
             }
 
-            let randomPassword = form.password.isEmpty ? String.random(12) : form.password
-
-            let user = try AdminPanelUser(
-                name: form.name,
-                title: form.title,
-                email: form.email,
-                password: randomPassword,
-                role: form.role,
-                shouldResetPassword: form.shouldResetPassword,
-                avatar: avatar
+            let user = try U.init(
+                form: form,
+                panelConfig: panelConfig,
+                req: req
             )
+
+            var randomPassword: String?
+            if form.password == nil || form.password?.isEmpty == true {
+                randomPassword = String.random(12)
+                user.password = try U.hashPassword(randomPassword!) // safe to force unwrap here
+            }
 
             try user.save()
 
             if
-                form.sendEmail,
+                form.shouldSendEmail ?? false,
                 panelConfig.isEmailEnabled,
                 let name = panelConfig.fromName,
                 let email = panelConfig.fromEmail
@@ -111,7 +99,7 @@ public final class AdminPanelUserController {
                     "url": .string(panelConfig.baseUrl)
                 ]
 
-                if !randomPassword.isEmpty {
+                if let randomPassword = randomPassword {
                     context["password"] = .string(randomPassword)
                 }
 
@@ -139,109 +127,77 @@ public final class AdminPanelUserController {
     }
 
     public func edit(req: Request) throws -> ResponseRepresentable {
-        let user: AdminPanelUser
+        let user: U
         do {
-            user = try req.parameters.next(AdminPanelUser.self)
+            user = try req.parameters.next()
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
 
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
-        let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+        let requestingUser: U = try req.auth.assertAuthenticated()
+        let allowed = requestingUser.id == user.id ||
+            Gate.allow(requestingUser.role, requiredRole: user.role) &&
+            Gate.allow(requestingUser, requiredRole: .admin)
+
 
         guard allowed else {
             throw Abort.notFound
         }
 
-        let fieldset = try req.storage["_fieldset"] as? Node ?? AdminPanelUserForm().makeNode(in: nil)
-        return try renderer.make("AdminPanel/BackendUser/edit", ["user": user, "fieldset": fieldset], for: req)
+        let fieldset = try req.fieldset ?? user.makeForm().makeFieldset(inValidationMode: .none)
+        return try renderer.make(
+            "AdminPanel/BackendUser/edit",
+            ViewData(["user": user, .fieldset: fieldset, .request: req])
+        )
     }
 
     public func update(req: Request) throws -> ResponseRepresentable {
-
         do {
-            var user: AdminPanelUser
+            var user: U
             do {
-                user = try req.parameters.next(AdminPanelUser.self)
+                user = try req.parameters.next()
             } catch {
                 return redirect("/admin/backend/users").flash(.error, "User not found")
             }
 
-            let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
-            let allowed = Gate.allow(requestingUser, requiredRole: .admin) || requestingUser.id == user.id
+            let requestingUser: U = try req.auth.assertAuthenticated()
+            let allowed = requestingUser.id == user.id ||
+                Gate.allow(requestingUser.role, requiredRole: user.role) &&
+                Gate.allow(requestingUser, requiredRole: .admin)
 
             guard allowed else {
                 throw Abort.notFound
             }
 
-            // users already have a role, so we don't care if they don't/can't update it
-            let (form, hasErrors) = AdminPanelUserForm.validating(req.data, ignoreRole: true)
+            let form = try U.Form.init(request: req)
 
-            if
-                let userByEmail = try AdminPanelUser.makeQuery().filter("email", form.email).first(),
-                userByEmail.id != user.id
-            {
-                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+            if !form.isValid(inValidationMode: .nonNil) {
+                return redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
                     .flash(.error, "Validation error")
-                var fieldset = try form.makeNode(in: nil)
-
-                try fieldset.set(
-                    "email",
-                    try Node(node: [
-                        "label": "Email",
-                        "value": .string(form.email),
-                        "errors": Node(node: ["Provided email already exists."])
-                    ])
-                )
-
-                response.storage["_fieldset"] = fieldset
-                return response
-            }
-
-            if hasErrors {
-                let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
-                    .flash(.error, "Validation error")
-                let fieldset = try form.makeNode(in: nil)
-                response.storage["_fieldset"] = fieldset
-                return response
-            }
-
-            user.name = form.name
-            user.title = form.title
-            user.email = form.email
-
-            let formPasswordHash = try BCryptHasher().make(form.password.makeBytes()).makeString()
-            if user.shouldResetPassword {
-                guard formPasswordHash != user.password else {
-                    let response = redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
-                        .flash(.error, "Please pick a new password")
-                    let fieldset = try form.makeNode(in: nil)
-                    response.storage["_fieldset"] = fieldset
-                    return response
-                }
-
-                user.shouldResetPassword = false
-            }
-
-            if !form.password.isEmpty {
-                user.password = formPasswordHash
+                    .setFieldset(try form.makeFieldset(inValidationMode: .nonNil))
             }
 
             // Users aren't allowed to change their own role
-            if requestingUser.id != user.id {
+            if let role = form.role, requestingUser.id != user.id {
                 // is the requesting user allowed to select this role?
-                if Gate.allow(requestingUser.role, requiredRole: form.role) {
-                    user.role = form.role
+                if Gate.allow(requestingUser.role, requiredRole: role) {
+                    user.role = role
                 }
             }
 
-            if
-                let profileImage = req.data["profileImage"]?.string,
-                profileImage.hasPrefix("data:"),
-                panelConfig.isStorageEnabled
-            {
-                let path = try Storage.upload(dataURI: profileImage, folder: "profile")
-                user.avatar = path
+            try user.updateNonPasswordValues(form: form, panelConfig: panelConfig, req: req)
+
+            let passwordHash = try form.password.map(U.hashPassword)
+
+            if user.shouldResetPassword, passwordHash == user.password || passwordHash == nil {
+                return try redirect("/admin/backend/users/\(user.id?.string ?? "0")/edit/")
+                    .flash(.error, "Please pick a new password")
+                    .setFieldset(form.makeFieldset(inValidationMode: .nonNil))
+            }
+
+            if let passwordHash = passwordHash {
+                user.password = passwordHash
+                user.shouldResetPassword = false
             }
 
             try user.save()
@@ -259,12 +215,12 @@ public final class AdminPanelUserController {
     }
 
     public func delete(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: AdminPanelUser
+        let user: U
         do {
-            user = try req.parameters.next(AdminPanelUser.self)
+            user = try req.parameters.next()
         } catch {
             return redirect("/admin/backend/users").flash(.error, "User not found")
         }
@@ -273,19 +229,27 @@ public final class AdminPanelUserController {
             return redirect("/admin/backend/users").flash(.error, "Cannot delete yourself")
         }
 
+        let allowed =
+            Gate.allow(requestingUser.role, requiredRole: user.role) &&
+            Gate.allow(requestingUser, requiredRole: .admin)
+        guard allowed else {
+            return redirect("/admin/backend/users")
+                .flash(.error, "Cannot delete user with a higher role.")
+        }
+
         try user.delete()
 
         return redirect("/admin/backend/users").flash(.warning, "User has been deleted. <a href='/admin/backend/users/\(user.id?.string ?? "0")/restore'>Undo</a>")
     }
 
     public func restore(req: Request) throws -> ResponseRepresentable {
-        let requestingUser = try req.auth.assertAuthenticated(AdminPanelUser.self)
+        let requestingUser: U = try req.auth.assertAuthenticated()
         try Gate.assertAllowed(requestingUser, requiredRole: .admin)
 
-        let user: AdminPanelUser
+        let user: U
         do {
             let id = try req.parameters.next(Int.self)
-            guard let u = try AdminPanelUser.makeQuery().filter("id", id).withSoftDeleted().first() else {
+            guard let u = try U.makeQuery().filter(U.idKey, id).withSoftDeleted().first() else {
                 throw Abort.notFound
             }
 
