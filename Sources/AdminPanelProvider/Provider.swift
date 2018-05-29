@@ -16,7 +16,9 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
     }
     public var panelConfig: PanelConfig
 
-    public init(panelConfig: PanelConfig) {
+    public init(
+        panelConfig: PanelConfig
+    ) {
         self.panelConfig = panelConfig
     }
 
@@ -33,7 +35,9 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
         Middlewares.unsecured.append(CustomUserActivityMiddleware<U>())
 
         Middlewares.secured = Middlewares.unsecured
-        Middlewares.secured.append(CustomUserProtectMiddleware<U>())
+        Middlewares.secured.append(
+            CustomUserProtectMiddleware<U>(passwordEditPathForUser: panelConfig.passwordEditPathForUser)
+        )
         Middlewares.secured.append(PasswordAuthenticationMiddleware<U>())
 
         config.preparations.append(U.self)

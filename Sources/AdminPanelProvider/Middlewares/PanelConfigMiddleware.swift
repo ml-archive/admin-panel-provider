@@ -1,3 +1,4 @@
+import Fluent
 import Storage
 import Vapor
 
@@ -21,6 +22,8 @@ public struct PanelConfig {
     /// Whether or not Storage (nodes-vapor/storage) is enabled for file uploads
     public let isStorageEnabled: Bool
 
+    internal let passwordEditPathForUser: (Entity) -> String
+
     public init(
         panelName: String,
         baseUrl: String,
@@ -28,7 +31,8 @@ public struct PanelConfig {
         isEmailEnabled: Bool,
         isStorageEnabled: Bool,
         fromEmail: String?,
-        fromName: String?
+        fromName: String?,
+        passwordEditPathForUser: @escaping (Entity) -> String
     ) {
         self.panelName = panelName
         self.baseUrl = baseUrl
@@ -37,6 +41,7 @@ public struct PanelConfig {
         self.isStorageEnabled = isStorageEnabled
         self.fromEmail = fromEmail
         self.fromName = fromName
+        self.passwordEditPathForUser = passwordEditPathForUser
     }
 
     /// AdminLTE-supported skins
@@ -63,6 +68,15 @@ public struct PanelConfig {
 
 extension PanelConfig: ConfigInitializable {
     public init(config: Config) throws {
+        try self.init(config: config, passwordEditPathForUser: { user in
+            "/admin/backend/users/\(user.id?.string ?? "0")/edit"
+        })
+    }
+
+    public init(
+        config: Config,
+        passwordEditPathForUser: @escaping (Entity) -> String
+    ) throws {
         var panelName = "Admin Panel"
         var baseUrl = "127.0.0.1:8080"
         var skin: PanelConfig.Skin = .blue
@@ -122,7 +136,8 @@ extension PanelConfig: ConfigInitializable {
             isEmailEnabled: isEmailEnabled,
             isStorageEnabled: isStorageEnabled,
             fromEmail: fromEmail,
-            fromName: fromName
+            fromName: fromName,
+            passwordEditPathForUser: passwordEditPathForUser
         )
     }
 }
