@@ -6,7 +6,6 @@ import Leaf
 import LeafProvider
 import Paginator
 import Sessions
-import Storage
 import Vapor
 
 public typealias Provider = CustomUserProvider<AdminPanelUser>
@@ -22,69 +21,7 @@ public final class CustomUserProvider<U: AdminPanelUserType>: Vapor.Provider {
     }
 
     public convenience init(config: Config) throws {
-        var panelName = "Admin Panel"
-        var baseUrl = "127.0.0.1:8080"
-        var skin: PanelConfig.Skin = .blue
-        var isEmailEnabled = true
-        var isStorageEnabled = true
-        var fromEmail: String?
-        var fromName: String?
-        let fileName = "adminpanel"
-
-        if let config = config[fileName, "email"] {
-            guard let email = config["fromAddress"]?.string else {
-                throw ConfigError.missing(
-                    key: ["fromAddress"],
-                    file: fileName,
-                    desiredType: String.self
-                )
-            }
-
-            guard let name = config["fromName"]?.string else {
-                throw ConfigError.missing(
-                    key: ["fromName"],
-                    file: fileName,
-                    desiredType: String.self
-                )
-            }
-
-            fromEmail = email
-            fromName = name
-        } else {
-            print("WARNING: couldn't find `email` key in `\(fileName).json`. Email features will be disabled.")
-            isEmailEnabled = false
-        }
-
-        if let config = config[fileName] {
-            panelName = config["name"]?.string ?? panelName
-            baseUrl = config["baseUrl"]?.string ?? baseUrl
-
-            if let userSkinConfig = config["skin"]?.string {
-                skin = PanelConfig.Skin(rawValue: userSkinConfig) ?? skin
-            }
-        }
-
-        if config["storage"] != nil {
-            // only add storage if it hasn't been added yet
-            if !config.providers
-                .contains(where: { type(of: $0).repositoryName == "Storage" })
-            {
-                try config.addProvider(StorageProvider.self)
-            }
-        } else {
-            print("WARNING: couldn't find `storage.json`. Image uploads will be disabled.")
-            isStorageEnabled = false
-        }
-
-        let panelConfig = PanelConfig(
-            panelName: panelName,
-            baseUrl: baseUrl,
-            skin: skin,
-            isEmailEnabled: isEmailEnabled,
-            isStorageEnabled: isStorageEnabled,
-            fromEmail: fromEmail,
-            fromName: fromName
-        )
+        let panelConfig = try PanelConfig(config: config)
         self.init(panelConfig: panelConfig)
     }
 
