@@ -7,8 +7,10 @@ public typealias ProtectMiddleware = CustomUserProtectMiddleware<AdminPanelUser>
 /// Redirects unauthenticated requests to a supplied path.
 public final class CustomUserProtectMiddleware<U: AdminPanelUserType>: Middleware {
     let passwordEditPathForUser: (U) -> String
-    init(passwordEditPathForUser: @escaping (U) -> String) {
-        self.passwordEditPathForUser = passwordEditPathForUser
+    init(passwordEditPathForUser: ((U) -> String)? = nil) {
+        self.passwordEditPathForUser = passwordEditPathForUser ?? { user in
+            "/admin/backend/users/\(user.id?.string ?? "0")/edit"
+        }
     }
 
     public func respond(to req: Request, chainingTo next: Responder) throws -> Response {

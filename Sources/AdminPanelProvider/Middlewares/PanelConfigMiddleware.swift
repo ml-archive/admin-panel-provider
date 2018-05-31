@@ -22,7 +22,7 @@ public struct PanelConfig {
     /// Whether or not Storage (nodes-vapor/storage) is enabled for file uploads
     public let isStorageEnabled: Bool
 
-    internal let passwordEditPathForUser: (Entity) -> String
+    internal let passwordEditPathForUser: ((Entity) -> String)?
 
     public init(
         panelName: String,
@@ -32,7 +32,7 @@ public struct PanelConfig {
         isStorageEnabled: Bool,
         fromEmail: String?,
         fromName: String?,
-        passwordEditPathForUser: @escaping (Entity) -> String
+        passwordEditPathForUser: ((Entity) -> String)?
     ) {
         self.panelName = panelName
         self.baseUrl = baseUrl
@@ -68,14 +68,12 @@ public struct PanelConfig {
 
 extension PanelConfig: ConfigInitializable {
     public init(config: Config) throws {
-        try self.init(config: config, passwordEditPathForUser: { user in
-            "/admin/backend/users/\(user.id?.string ?? "0")/edit"
-        })
+        try self.init(config: config, passwordEditPathForUser: nil)
     }
 
     public init(
         config: Config,
-        passwordEditPathForUser: @escaping (Entity) -> String
+        passwordEditPathForUser: ((Entity) -> String)?
     ) throws {
         var panelName = "Admin Panel"
         var baseUrl = "127.0.0.1:8080"
