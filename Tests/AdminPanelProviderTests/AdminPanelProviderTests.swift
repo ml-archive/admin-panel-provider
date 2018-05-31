@@ -15,7 +15,8 @@ class AdminPanelProviderTests: XCTestCase {
             isEmailEnabled: false,
             isStorageEnabled: false,
             fromEmail: nil,
-            fromName: nil
+            fromName: nil,
+            passwordEditPathForUser: nil
         )
         let controller = LoginController(
             renderer: LeafTestRenderer(viewsDir: workingDirectory() + "/Resources/Views/"),
