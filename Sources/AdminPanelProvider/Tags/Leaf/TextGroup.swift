@@ -71,7 +71,7 @@ public func this(_ lhs: String?, or rhs: String?) -> String {
 }
 
 public final class TextGroup: BasicTag {
-    public init(){}
+    public init() {}
     public let name = "form:textgroup"
 
     public func run(arguments: ArgumentList) throws -> Node? {
@@ -80,7 +80,7 @@ public final class TextGroup: BasicTag {
             case .variable(let fieldsetPathNodes, value: let fieldset) = arguments.list[0],
             let fieldsetPath = fieldsetPathNodes.last
         else {
-            throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: #form:textgroup(\"name\", \"default\", fieldset)")
+            throw Abort(.internalServerError, reason: "TextGroup parse error, expecting: #form:textgroup(\"fieldset.name\", \"default\", \"classes\", \"attributes\")")
         }
 
         // Retrieve input value, value from fieldset else passed default value
