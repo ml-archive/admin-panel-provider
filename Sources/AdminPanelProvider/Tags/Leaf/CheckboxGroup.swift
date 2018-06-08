@@ -10,8 +10,8 @@ public final class CheckboxGroup: BasicTag {
             arguments.count >= 2,
             case .variable(let fieldsetPathNodes, value: let fieldset) = arguments.list[0],
             let fieldsetPath = fieldsetPathNodes.last
-            else {
-                throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: #form:textgroup(\"name\", \"default\", fieldset)")
+        else {
+            throw Abort(.internalServerError, reason: "FormTextGroup parse error, expecting: #form:checkboxgroup(\"fieldset.name\", \"default\")")
         }
 
         // Retrieve input value, value from fieldset else passed default value
