@@ -4,6 +4,7 @@ import BCrypt
 import FluentProvider
 import Forms
 import Storage
+import SMTP
 import Vapor
 
 public protocol AdminPanelUserFormType: Form {
@@ -14,6 +15,7 @@ public protocol AdminPanelUserFormType: Form {
 
 public protocol AdminPanelUserType:
     AuditCustomDescribable,
+    EmailAddressRepresentable,
     NodeRepresentable,
     Parameterizable,
     PasswordAuthenticatable,
@@ -57,6 +59,12 @@ public protocol AdminPanelUserType:
 
     /// database key name for `email` property
     static var emailKey: String { get }
+}
+
+extension AdminPanelUserType {
+    public var emailAddress: EmailAddress {
+        return EmailAddress(name: name, address: email)
+    }
 }
 
 extension AdminPanelUserType {

@@ -1,6 +1,7 @@
-import Vapor
-import Cookies
 import AuthProvider
+import Cookies
+import SMTP
+import Vapor
 
 public typealias LoginController = CustomUserLoginController<AdminPanelUser>
 
@@ -83,11 +84,10 @@ public final class CustomUserLoginController<U: AdminPanelUserType> {
                 expireAt: Date().addingTimeInterval(60*60)
             )
             try token.save()
-            
             if let fromEmail = panelConfig.fromEmail {
                 mailer?.sendEmail(
-                    from: fromEmail,
-                    to: email,
+                    from: EmailAddress(name: panelConfig.fromName, address: fromEmail),
+                    to: user,
                     subject: "Reset password",
                     path: "AdminPanel/Emails/reset-password",
                     renderer: renderer,
