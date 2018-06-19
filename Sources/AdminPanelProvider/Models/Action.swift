@@ -4,6 +4,8 @@ public typealias Action = CustomUserAction<AdminPanelUser>
 
 /// An event that occured in the admin panel
 public final class CustomUserAction<U: AdminPanelUserType>: Model {
+    public static var name: String { return "action" }
+
     public let storage = Storage()
 
     public var name: String
