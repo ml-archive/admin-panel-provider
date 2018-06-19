@@ -104,8 +104,8 @@ public final class CustomAdminPanelUserController<U: AdminPanelUserType> {
                 }
 
                 mailer?.sendEmail(
-                    from: email,
-                    to: user.email,
+                    from: EmailAddress(name: name, address: email),
+                    to: user,
                     subject: "Welcome to Admin Panel",
                     path: "AdminPanel/Emails/welcome",
                     renderer: renderer,
