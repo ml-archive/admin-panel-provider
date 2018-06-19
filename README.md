@@ -21,7 +21,7 @@ Admin Panel makes it easy to setup and maintain admin features for your Vapor pr
 Update your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.6.0")),
+.package(url: "https://github.com/nodes-vapor/admin-panel-provider.git", .upToNextMinor(from: "0.7.0")),
 ```
 ```swift
 targets: [
