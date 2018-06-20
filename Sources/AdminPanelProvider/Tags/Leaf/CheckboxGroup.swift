@@ -15,7 +15,10 @@ public final class CheckboxGroup: BasicTag {
         }
 
         // Retrieve input value, value from fieldset else passed default value
-        let inputValue = fieldset?["value"]?.bool ?? arguments[1]?.bool ?? false
+        var inputValue = arguments[1]?.bool ?? false
+        if let fieldsetValue = fieldset?["value"], fieldsetValue.isNull == false {
+            inputValue = fieldsetValue.bool ?? false
+        }
 
         let label = fieldset?["label"]?.string ?? fieldsetPath
 
