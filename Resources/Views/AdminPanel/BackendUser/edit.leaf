@@ -134,7 +134,7 @@ $(function() {
                 #if(request.storage.adminPanel.isEmailEnabled) {
                     #if(user) {
                     } ##else() {
-                        #form:checkboxgroup(fieldset.sendEmail, true)
+                        #form:checkboxgroup(fieldset.shouldSendEmail, true)
                     }
                 }
                 

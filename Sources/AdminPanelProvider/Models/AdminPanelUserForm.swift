@@ -174,8 +174,8 @@ extension AdminPanelUserForm: RequestInitializable {
             passwordRepeat: content.get("passwordRepeat"),
             title: content.get("title"),
             role: content.get("role"),
-            shouldResetPassword: content.get("shouldResetPassword"),
-            shouldSendEmail: content.get("shouldSendEmail")
+            shouldResetPassword: try content.getBool("shouldResetPassword"),
+            shouldSendEmail: try content.getBool("shouldSendEmail")
         )
     }
 }
