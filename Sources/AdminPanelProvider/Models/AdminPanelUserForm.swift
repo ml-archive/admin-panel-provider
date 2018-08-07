@@ -168,14 +168,15 @@ extension AdminPanelUserForm: RequestInitializable {
     public init(request: Request) throws {
         let content = request.data
         try self.init(
+            userId: content.get("id"),
             name: content.get("name"),
             email: content.get("email"),
             password: content.get("password"),
             passwordRepeat: content.get("passwordRepeat"),
             title: content.get("title"),
             role: content.get("role"),
-            shouldResetPassword: content.get("shouldResetPassword"),
-            shouldSendEmail: content.get("shouldSendEmail")
+            shouldResetPassword: content.getBool("shouldResetPassword"),
+            shouldSendEmail: content.getBool("shouldSendEmail")
         )
     }
 }
@@ -183,6 +184,7 @@ extension AdminPanelUserForm: RequestInitializable {
 extension AdminPanelUserForm {
     public init(user: AdminPanelUser) {
         self.init(
+            userId: user.id,
             name: user.name,
             email: user.email,
             title: user.title,

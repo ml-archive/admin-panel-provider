@@ -135,7 +135,7 @@ extension AdminPanelUser: AdminPanelUserType {
             name: values.name,
             title: values.title,
             email: values.email,
-            password: AdminPanelUser.hashPassword(newPassword),
+            password: newPassword,
             role: values.role,
             shouldResetPassword: shouldResetPassword,
             avatar: avatar
