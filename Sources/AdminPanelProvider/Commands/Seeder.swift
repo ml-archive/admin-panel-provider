@@ -1,7 +1,7 @@
 import Vapor
 import Console
 
-typealias Seeder = CustomUserSeeder<AdminPanelUser>
+public typealias Seeder = CustomUserSeeder<AdminPanelUser>
 
 /// Seeds the admin panel with a default user
 public final class CustomUserSeeder<U: AdminPanelUserType>: Command, ConfigInitializable {
